@@ -1,0 +1,439 @@
+/* ==========================================================================
+   Service Detail Page Styles
+   Editorial, Architectural, and Cohesive with Sushita Ventures Brand
+   ========================================================================== */
+
+.service-detail-root {
+  min-height: 100vh;
+  background-color: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.service-detail-wrapper {
+  flex: 1;
+}
+
+.service-detail-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* 1. Hero Section */
+.service-hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 11rem 0 5rem;
+  overflow: hidden;
+  background-color: #060708;
+}
+
+.service-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  opacity: 0.75;
+  filter: contrast(108%) brightness(95%);
+  transition: transform 1.2s var(--motion-ease-out);
+}
+
+.service-hero-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(6, 7, 8, 0.45) 0%, rgba(6, 7, 8, 0.7) 60%, rgba(6, 7, 8, 0.95) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.service-hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 900px;
+}
+
+.service-hero-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.service-hero-badge {
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: #e5c365;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  background: rgba(229, 195, 101, 0.12);
+  border: 1px solid rgba(229, 195, 101, 0.3);
+  border-radius: var(--radius-pill);
+}
+
+.service-hero-title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(2.2rem, 3.8vw + 0.6rem, 3.85rem);
+  line-height: 1.15;
+  letter-spacing: var(--letter-spacing-heading);
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  text-wrap: balance;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
+}
+
+.service-hero-tagline {
+  font-size: clamp(1rem, 1.2vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  font-weight: 350;
+  max-width: 720px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+
+/* 2. Overview Section */
+.service-overview-section {
+  padding: 6.5rem 0 4.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.service-overview-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 4.5rem;
+  align-items: flex-start;
+}
+
+.service-overview-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-section-eyebrow {
+  font-family: var(--font-family-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  color: var(--color-text-accent);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.service-overview-heading {
+  font-family: var(--font-family-serif);
+  font-size: 2.15rem;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.service-overview-text {
+  font-size: 1.05rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  font-weight: 350;
+  margin-bottom: 2rem;
+}
+
+/* Target Assets Card */
+.service-target-card {
+  padding: 2.5rem;
+  background: var(--color-bg-surface-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-subtle);
+}
+
+.service-target-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+.service-target-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.service-target-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.service-target-bullet {
+  color: var(--color-text-accent);
+  font-size: 0.85rem;
+}
+
+/* 3. Core Pillars Grid */
+.service-pillars-section {
+  padding: 6.5rem 0;
+  background-color: var(--color-bg-canvas);
+}
+
+.service-pillars-header {
+  max-width: 720px;
+  margin-bottom: 4rem;
+}
+
+.service-pillars-heading {
+  font-family: var(--font-family-serif);
+  font-size: 2.25rem;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.service-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.service-pillar-card {
+  padding: 2.5rem;
+  background: var(--color-bg-surface-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--motion-duration-base) var(--motion-ease-out);
+}
+
+.service-pillar-card:hover {
+  border-color: var(--color-border-medium);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.service-pillar-num {
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-accent);
+  letter-spacing: 0.16em;
+  margin-bottom: 1rem;
+  display: block;
+  font-weight: 600;
+}
+
+.service-pillar-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.35rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.85rem;
+  font-weight: 500;
+}
+
+.service-pillar-desc {
+  font-size: 0.925rem;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  font-weight: 350;
+}
+
+/* 4. Advisory Process Steps */
+.service-process-section {
+  padding: 6.5rem 0;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-surface-primary);
+}
+
+.service-process-header {
+  max-width: 680px;
+  margin-bottom: 4rem;
+}
+
+.service-process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.75rem;
+}
+
+.service-process-card {
+  padding: 2rem;
+  background: var(--color-bg-canvas);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.service-process-num {
+  font-family: var(--font-family-mono);
+  font-size: 1.5rem;
+  color: var(--color-text-accent);
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.service-process-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.15rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.service-process-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-weight: 350;
+}
+
+/* 5. Service CTA Strip */
+.service-cta-strip {
+  padding: 5rem 0;
+  text-align: center;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-canvas);
+}
+
+.service-cta-content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.service-cta-title {
+  font-family: var(--font-family-serif);
+  font-size: 2.15rem;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.service-cta-desc {
+  font-size: 1.05rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2.25rem;
+  line-height: 1.65;
+  font-weight: 350;
+}
+
+.service-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background-color: var(--color-text-accent);
+  color: #060708;
+  font-family: var(--font-family-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 1.05rem 2.35rem;
+  border-radius: var(--radius-pill);
+  transition: all var(--motion-duration-fast) var(--motion-ease-out);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+}
+
+.service-cta-btn:hover {
+  background-color: var(--brand-accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(212, 175, 55, 0.55);
+}
+
+/* 6. Other Services Navigation */
+.service-nav-bar {
+  padding: 3rem 0;
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-surface-primary);
+}
+
+.service-nav-title {
+  font-family: var(--font-family-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--color-text-accent);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.service-nav-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.service-nav-pill-link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-canvas);
+  transition: all var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.service-nav-pill-link:hover,
+.service-nav-pill-link.active {
+  border-color: var(--color-text-accent);
+  color: var(--color-text-accent);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .service-overview-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .service-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-process-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .service-hero-section {
+    padding: 9rem 0 4rem;
+    min-height: 55vh;
+  }
+
+  .service-hero-title {
+    font-size: 2.15rem;
+  }
+
+  .service-overview-heading,
+  .service-pillars-heading,
+  .service-cta-title {
+    font-size: 1.85rem;
+  }
+
+  .service-process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-target-card,
+  .service-pillar-card {
+    padding: 1.75rem;
+  }
+}

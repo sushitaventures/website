@@ -1,0 +1,140 @@
+.video-showcase-root {
+  position: relative;
+  width: 100%;
+  padding: 3rem 0 var(--space-24);
+  background-color: var(--color-bg-canvas);
+  overflow: hidden;
+}
+
+.video-showcase-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.video-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 3.5rem;
+}
+
+.video-eyebrow {
+  display: inline-block;
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-eyebrow);
+  color: var(--color-text-accent);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+}
+
+.video-heading {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-display-2);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  letter-spacing: var(--letter-spacing-heading);
+  margin-bottom: 1rem;
+}
+
+.video-description {
+  font-size: var(--font-size-body-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Cinematic Video Container */
+.video-frame-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-surface-secondary);
+  box-shadow: var(--shadow-dramatic);
+}
+
+.video-iframe-element {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Façade & Fallback Poster */
+.video-poster-facade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-poster-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(8, 9, 10, 0.45);
+  transition: background var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.video-poster-facade:hover .video-poster-scrim {
+  background: rgba(8, 9, 10, 0.25);
+}
+
+.video-play-trigger {
+  position: relative;
+  z-index: 3;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(18, 20, 26, 0.92);
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.video-poster-facade:hover .video-play-trigger {
+  transform: scale(1.08);
+  border-color: var(--color-text-accent);
+  color: var(--color-text-accent);
+}
+
+.video-caption-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1140px;
+  margin: 1.25rem auto 0;
+  padding: 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .video-showcase-root {
+    padding: var(--space-16) 0;
+  }
+  .video-play-trigger {
+    width: 58px;
+    height: 58px;
+  }
+}

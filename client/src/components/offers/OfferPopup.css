@@ -1,0 +1,109 @@
+.offer-modal-overlay {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  z-index: 900;
+  max-width: 440px;
+  width: calc(100% - 3rem);
+  animation: fadeInScale var(--motion-duration-base) var(--motion-ease-out) forwards;
+}
+
+.offer-card {
+  background: #121418;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-dramatic);
+  position: relative;
+  overflow: hidden;
+}
+
+.offer-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: var(--letter-spacing-eyebrow);
+  color: var(--color-text-accent);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.offer-title {
+  font-family: var(--font-family-serif);
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  margin-bottom: 0.65rem;
+  font-weight: 500;
+}
+
+.offer-description {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+.offer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.offer-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-accent);
+  transition: color var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.offer-cta-link:hover {
+  color: #fff;
+}
+
+.offer-dismiss-btn {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.offer-dismiss-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.offer-close-x {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--color-text-secondary);
+  padding: 0.4rem;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.offer-close-x:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 600px) {
+  .offer-modal-overlay {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    left: 1.25rem;
+    width: auto;
+    max-width: none;
+  }
+}

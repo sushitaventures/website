@@ -1,0 +1,145 @@
+/* Luxury Design Tokens - Architectural & Minimal Direction */
+:root,
+[data-theme="dark"] {
+  /* Sushita Ventures Brand Colors */
+  --brand-primary: #0a0b0d;
+  --brand-accent-gold: #d4af37; /* Vibrant warm metallic gold extracted from emblem */
+  --brand-accent-light: #f5d77f;
+  --brand-accent-deep: #9a7b20;
+  
+  /* Canvas & Surface Tokens - Deep Obsidian */
+  --color-bg-canvas: #060708;
+  --color-bg-surface-primary: #0f1114;
+  --color-bg-surface-secondary: #16181d;
+  --color-bg-surface-elevated: #1f2229;
+  --color-bg-glass: rgba(6, 7, 8, 0.88);
+  --color-bg-glass-subtle: rgba(212, 175, 55, 0.04);
+
+  /* Semantic Typography Colors */
+  --color-text-primary: #f8f9fa;
+  --color-text-secondary: #a3a7b0;
+  --color-text-muted: #676c76;
+  --color-text-accent: var(--brand-accent-gold);
+  --color-text-inverted: #0a0b0d;
+
+  /* Line, Border & Scrim Tokens */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-medium: rgba(212, 175, 55, 0.22);
+  --color-border-active: var(--brand-accent-gold);
+  --scrim-hero: linear-gradient(180deg, rgba(8, 9, 10, 0.5) 0%, rgba(8, 9, 10, 0.3) 40%, rgba(8, 9, 10, 0.85) 100%);
+  --scrim-card: linear-gradient(180deg, rgba(8, 9, 10, 0) 30%, rgba(8, 9, 10, 0.9) 100%);
+  --scrim-radial: radial-gradient(ellipse at center, rgba(6, 7, 8, 0.65) 0%, rgba(6, 7, 8, 0.88) 60%, #060708 100%);
+
+  /* Radii & Shadows */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --shadow-dramatic: 0 24px 80px rgba(0, 0, 0, 0.7);
+  --wordmark-color: rgba(255, 255, 255, 0.06);
+  --wordmark-hover: rgba(255, 255, 255, 0.1);
+  --toggle-bg: rgba(255, 255, 255, 0.05);
+  --toggle-border: rgba(212, 175, 55, 0.3);
+}
+
+[data-theme="light"] {
+  /* Sushita Ventures Brand Colors - Calibrated for Light Background */
+  --brand-primary: #f8f6f0;
+  --brand-accent-gold: #b38a20; /* Slightly richer gold for high contrast on light canvas */
+  --brand-accent-light: #cfa83b;
+  --brand-accent-deep: #7a5e14;
+
+  /* Canvas & Surface Tokens - Warm Architectural Alabaster */
+  --color-bg-canvas: #f8f6f0;
+  --color-bg-surface-primary: #ffffff;
+  --color-bg-surface-secondary: #f0ede4;
+  --color-bg-surface-elevated: #e6e2d6;
+  --color-bg-glass: rgba(248, 246, 240, 0.92);
+  --color-bg-glass-subtle: rgba(179, 138, 32, 0.06);
+
+  /* Semantic Typography Colors - Architectural Obsidian & Slate */
+  --color-text-primary: #121417;
+  --color-text-secondary: #484c56;
+  --color-text-muted: #737885;
+  --color-text-accent: var(--brand-accent-gold);
+  --color-text-inverted: #ffffff;
+
+  /* Line, Border & Scrim Tokens */
+  --color-border-subtle: rgba(18, 20, 23, 0.08);
+  --color-border-medium: rgba(179, 138, 32, 0.28);
+  --color-border-active: var(--brand-accent-gold);
+  --scrim-hero: linear-gradient(180deg, rgba(8, 9, 10, 0.5) 0%, rgba(8, 9, 10, 0.3) 40%, rgba(8, 9, 10, 0.85) 100%);
+  --scrim-card: linear-gradient(180deg, rgba(8, 9, 10, 0) 30%, rgba(8, 9, 10, 0.92) 100%);
+  --scrim-radial: radial-gradient(ellipse at center, rgba(248, 246, 240, 0.65) 0%, rgba(248, 246, 240, 0.88) 60%, #f8f6f0 100%);
+
+  /* Radii & Shadows - Softer Ambient Shadow */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-elevated: 0 12px 35px rgba(24, 26, 30, 0.08);
+  --shadow-dramatic: 0 24px 60px rgba(24, 26, 30, 0.12);
+  --wordmark-color: rgba(18, 20, 23, 0.05);
+  --wordmark-hover: rgba(18, 20, 23, 0.09);
+  --toggle-bg: rgba(18, 20, 23, 0.05);
+  --toggle-border: rgba(179, 138, 32, 0.35);
+}
+
+:root {
+  /* Typography Scales */
+  --font-family-serif: "Cinzel", "Playfair Display", "Didot", "Bodoni MT", serif;
+  --font-family-sans: "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Typography Scales - Calibrated for Manrope Proportions */
+  --font-size-display-1: clamp(2.4rem, 4.8vw + 0.8rem, 4.5rem);
+  --font-size-display-2: clamp(1.85rem, 3.2vw + 0.6rem, 3rem);
+  --font-size-h1: clamp(1.65rem, 2.4vw + 0.4rem, 2.4rem);
+  --font-size-h2: clamp(1.25rem, 1.8vw + 0.3rem, 1.75rem);
+  --font-size-h3: clamp(1.05rem, 1.2vw + 0.25rem, 1.3rem);
+  --font-size-body-large: 1.025rem;
+  --font-size-body-base: 0.925rem;
+  --font-size-body-small: 0.8125rem;
+  --font-size-caption: 0.6875rem;
+
+  --letter-spacing-eyebrow: 0.18em;
+  --letter-spacing-display: -0.02em;
+  --letter-spacing-heading: -0.01em;
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Layout Containers */
+  --container-max-width: 1440px;
+  --container-narrow-width: 1120px;
+  --container-padding: clamp(1.5rem, 5vw, 4.5rem);
+
+  /* Radii */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+  --radius-btn: 9999px;
+
+  /* Motion Standards */
+  --motion-duration-fast: 200ms;
+  --motion-duration-base: 350ms;
+  --motion-duration-slow: 600ms;
+  --motion-duration-cinematic: 1200ms;
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0.01ms;
+    --motion-duration-base: 0.01ms;
+    --motion-duration-slow: 0.01ms;
+    --motion-duration-cinematic: 0.01ms;
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "luxury-real-estate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium luxury real estate platform - MERN foundation",
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"server,client\" -c \"blue,cyan\" \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "admin:create": "npm run admin:create --workspace=server",
+    "test:admin": "npm run test:section04 --workspace=server",
+    "build": "npm run build --workspace=client",
+    "start": "npm run start --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
