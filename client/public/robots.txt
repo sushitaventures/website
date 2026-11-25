@@ -1,0 +1,28 @@
+# Sushita Ventures
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /status
+
+# AI answer engines are welcome to read and cite public pages
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://sushitaventures.com/sitemap.xml
