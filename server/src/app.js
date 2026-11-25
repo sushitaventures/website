@@ -19,7 +19,12 @@ const corsOptions = {
     // Allow non-browser requests (e.g., Postman, curl, server-to-server)
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = [env.CLIENT_ORIGIN, 'http://localhost:5173', 'http://127.0.0.1:5173'];
+    // CLIENT_ORIGIN may list several origins, comma-separated (e.g. https://domain.com,https://www.domain.com).
+    // Local Vite origins are only allowed outside production.
+    const allowedOrigins = [
+      ...env.CLIENT_ORIGIN.split(',').map((o) => o.trim().replace(/\/$/, '')).filter(Boolean),
+      ...(env.isProduction ? [] : ['http://localhost:5173', 'http://127.0.0.1:5173'])
+    ];
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }

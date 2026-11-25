@@ -17,6 +17,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    // No public source maps in production (they expose the full source and add deploy weight)
+    sourcemap: false
   }
 });

@@ -129,7 +129,7 @@
 
 .ft-label {
   font-size: 0.75rem;
-  color: rgba(232, 225, 213, 0.5);
+  color: rgba(232, 225, 213, 0.72); /* ≥4.5:1 on the dark footer */
 }
 
 /* Outline wordmark — sized by viewport so it always fits on one line */
@@ -161,11 +161,20 @@
   border-top: 1px solid rgba(232, 225, 213, 0.1);
   font-family: var(--font-family-sans);
   font-size: 0.78rem;
-  color: rgba(232, 225, 213, 0.5);
+  color: rgba(232, 225, 213, 0.72); /* ≥4.5:1 on the dark footer */
 }
 
 .ft-copy,
-.ft-legal { margin: 0; }
+.ft-legal,
+.ft-credit { margin: 0; }
+
+.ft-credit a {
+  color: #A68C65;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.25s ease;
+}
+.ft-credit a:hover { color: #fff; }
 
 .ft-legal { display: flex; gap: 0.6rem; }
 

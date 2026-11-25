@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Navbar } from '../../components/navigation/Navbar.jsx';
 import { HeroSlider } from '../../components/hero/HeroSlider.jsx';
@@ -8,14 +8,21 @@ import { BusinessPerspective } from '../../components/home/BusinessPerspective.j
 import { WhySushita } from '../../components/home/WhySushita.jsx';
 import { ContactCTA } from '../../components/home/ContactCTA.jsx';
 import { PremiumFooter } from '../../components/footer/PremiumFooter.jsx';
-import { OfferPopup } from '../../components/offers/OfferPopup.jsx';
+import { useSeo } from '../../seo/useSeo.js';
+import { HOME_FAQS } from '../../seo/seoData.js';
+import { useAfterLoad } from '../../utils/useAfterLoad.js';
+
+// Below-the-fold / deferred pieces load in their own chunks. They're the only home
+// components using framer-motion, so the library stays out of the critical bundle.
+const FaqSection = lazy(() => import('../../components/common/FaqSection.jsx').then((m) => ({ default: m.FaqSection })));
+const OfferPopup = lazy(() => import('../../components/offers/OfferPopup.jsx').then((m) => ({ default: m.OfferPopup })));
 
 export const HomePage = () => {
   const location = useLocation();
 
-  useEffect(() => {
-    document.title = 'Sushita Ventures | Real Estate & Investment Opportunities';
-  }, []);
+  useSeo('/');
+  // FAQ chunk + offer popup wait until the page is loaded and idle (keeps them off the LCP path)
+  const afterLoad = useAfterLoad();
 
   useEffect(() => {
     if (location.hash) {
@@ -52,6 +59,13 @@ export const HomePage = () => {
         <WhySushita />
 
         {/* Section 6: Final Brand Statement & Contact CTA (Pre-Footer Card) */}
+        {/* FAQ — visible Q&A matching the FAQPage structured data (AEO) */}
+        {afterLoad && (
+          <Suspense fallback={null}>
+            <FaqSection faqs={HOME_FAQS} tone="dark" />
+          </Suspense>
+        )}
+
         <ContactCTA />
       </main>
 
@@ -59,7 +73,11 @@ export const HomePage = () => {
       <PremiumFooter />
 
       {/* Exclusive Mandate / Offer Modal */}
-      <OfferPopup />
+      {afterLoad && (
+        <Suspense fallback={null}>
+          <OfferPopup />
+        </Suspense>
+      )}
     </div>
   );
 };

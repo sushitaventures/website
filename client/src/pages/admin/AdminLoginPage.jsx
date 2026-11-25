@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useSeo } from '../../seo/useSeo.js';
 
 export const AdminLoginPage = () => {
+  useSeo('/admin/login', { noindex: true, title: 'Admin Sign In | Sushita Ventures' });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);

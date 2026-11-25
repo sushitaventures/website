@@ -17,7 +17,7 @@ class ApiClientError extends Error {
 
 export const request = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {})
@@ -25,7 +25,11 @@ export const request = async (endpoint, options = {}) => {
 
   const config = {
     ...options,
-    headers
+    headers,
+    // Send the HttpOnly admin_session cookie when the API is on another origin
+    // (e.g. site on domain.com, API on api.domain.com). Server CORS allows credentials
+    // only for CLIENT_ORIGIN.
+    credentials: 'include'
   };
 
   try {

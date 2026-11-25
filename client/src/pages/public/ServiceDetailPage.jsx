@@ -10,6 +10,9 @@ import { SplitText } from '../../components/common/SplitText.jsx';
 import { SERVICE_DETAILS_MAP } from '../../components/services/serviceDetailsData.js';
 import { fadeInUp, staggerContainer, staggerItem, defaultViewport, LUXURY_EASE } from '../../utils/motionVariants.js';
 import '../../components/services/ServiceDetail.css';
+import { useSeo } from '../../seo/useSeo.js';
+import { FaqSection } from '../../components/common/FaqSection.jsx';
+import { serviceFaqs } from '../../seo/seoData.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -179,6 +182,9 @@ const ServiceContent = ({ service, slug }) => {
         </div>
       </section>
 
+      {/* FAQ — visible Q&A matching the FAQPage structured data (AEO) */}
+      <FaqSection faqs={serviceFaqs(service)} heading={`${service.title}: Questions & Answers`} tone="dark" />
+
       {/* 5. CTA */}
       <section className="sd-section sd-dark sd-cta" aria-label="Connect With Advisory">
         <div className="sd-wrap">
@@ -225,9 +231,10 @@ const ServiceContent = ({ service, slug }) => {
 export const ServiceDetailPage = () => {
   const { slug } = useParams();
   const service = SERVICE_DETAILS_MAP[slug];
+  // Canonical slug — legacy alias URLs (e.g. /services/hotels) point search engines at the real page
+  useSeo(service ? `/services/${service.slug}` : `/services/${slug}`, { noindex: !service });
 
   useEffect(() => {
-    if (service) document.title = `${service.title} | Sushita Ventures Real Estate Advisory`;
     if (window.lenis) window.lenis.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
   }, [slug, service]);

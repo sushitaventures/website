@@ -46,13 +46,19 @@ export const SplitText = ({
       const defaultStagger = type === 'chars' ? 0.025 : 0.055;
       const effectiveStagger = stagger !== undefined ? stagger : defaultStagger;
 
-      const fromVars = {
-        yPercent: animation === 'fade-rise' ? 60 : 115,
-        opacity: animation === 'reveal' ? 0.2 : 0,
-        rotateX: animation === '3d-flip' ? -50 : -14,
-        rotateY: animation === '3d-flip' ? 10 : 0,
-        transformOrigin: '50% 100% -20px',
-      };
+      // 'lcp-rise': for above-the-fold headlines that are the page's Largest Contentful Paint.
+      // Words start partly visible (never opacity 0) so the heading counts as painted on the
+      // first frame; they still rise and sharpen into place.
+      const fromVars =
+        animation === 'lcp-rise'
+          ? { yPercent: 35, opacity: 0.4, rotateX: -20, transformOrigin: '50% 100% -20px' }
+          : {
+              yPercent: animation === 'fade-rise' ? 60 : 115,
+              opacity: animation === 'reveal' ? 0.2 : 0,
+              rotateX: animation === '3d-flip' ? -50 : -14,
+              rotateY: animation === '3d-flip' ? 10 : 0,
+              transformOrigin: '50% 100% -20px',
+            };
 
       const toVars = {
         yPercent: 0,
@@ -90,9 +96,9 @@ export const SplitText = ({
       <Tag
         ref={containerRef}
         className={`split-text-root split-chars-mode ${className}`.trim()}
-        aria-label={rawText}
         {...rest}
       >
+        <span className="split-sr">{rawText}</span>
         {chars.map((char, idx) => (
           <span key={idx} className="split-char-mask" aria-hidden="true">
             <span className="split-char">{char === ' ' ? '\u00A0' : char}</span>
@@ -108,15 +114,19 @@ export const SplitText = ({
     <Tag
       ref={containerRef}
       className={`split-text-root split-words-mode ${className}`.trim()}
-      aria-label={rawText}
       {...rest}
     >
+      {/* Real spaces between words (not CSS margins) so the heading's text content reads
+          correctly for crawlers, answer engines and screen readers — no ARIA needed. */}
       {words.map((word, idx) => (
-        <span key={idx} className="split-word-wrapper">
-          <span className="split-word-mask" aria-hidden="true">
-            <span className="split-word">{word}</span>
+        <React.Fragment key={idx}>
+          {idx > 0 && ' '}
+          <span className="split-word-wrapper">
+            <span className="split-word-mask">
+              <span className="split-word">{word}</span>
+            </span>
           </span>
-        </span>
+        </React.Fragment>
       ))}
     </Tag>
   );

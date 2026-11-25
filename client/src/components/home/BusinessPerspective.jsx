@@ -102,7 +102,7 @@ export const BusinessPerspective = () => {
         <div className="perspective-visual-col">
           <div ref={mediaRef} className="perspective-image-frame">
             <picture>
-              <source srcSet="/images/home/business-perspective.webp" type="image/webp" />
+              <source srcSet="/images/home/business-perspective-640.webp 640w, /images/home/business-perspective.webp 1200w" sizes="(max-width: 900px) 100vw, 50vw" type="image/webp" />
               <img
                 src="/images/home/business-perspective.jpg"
                 alt="Monumental contemporary mixed-use architecture integrated with landscape"

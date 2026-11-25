@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./ServicesScrollGrid.css";
+import { useAfterLoad } from "../../utils/useAfterLoad.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,6 +38,9 @@ const SERVICES = [
 
 export const ServicesScrollGrid = () => {
   const rootRef = useRef(null);
+  // Card photos are below the fold: render them after load/idle so they stay off the LCP path.
+  // Safe for the GSAP timeline, which animates the cards themselves, not the <img>s.
+  const afterLoad = useAfterLoad();
 
   useGSAP(
     () => {
@@ -107,10 +111,23 @@ export const ServicesScrollGrid = () => {
             to={`/services/${s.slug}`}
             className={`ssg-card ssg-card--${s.area === "center" ? "center" : "side"} ssg-${s.area}`}
           >
+            {afterLoad && (
             <picture>
-              <source srcSet={`/images/home/${s.img}.webp`} type="image/webp" />
-              <img src={`/images/home/${s.img}.jpg`} alt={s.title} className="ssg-img" />
+              <source
+                srcSet={`/images/home/${s.img}-640.webp 640w, /images/home/${s.img}.webp 896w`}
+                // The centre card starts full-screen in the scroll animation, so it needs the large file
+                sizes={s.area === "center" ? "100vw" : "(max-width: 900px) 82vw, 30vw"}
+                type="image/webp"
+              />
+              <img
+                src={`/images/home/${s.img}.jpg`}
+                alt="" /* the card heading names the service */
+                className="ssg-img"
+                loading="lazy"
+                decoding="async"
+              />
             </picture>
+            )}
             <h3 className="ssg-title">{s.title}</h3>
           </Link>
         ))}

@@ -48,7 +48,7 @@ export const ContactCTA = () => {
       {/* Background Architectural Visual (Blue-Hour Luxury Structure) */}
       <div className="contact-cta-bg-layer" aria-hidden="true">
         <picture>
-          <source srcSet="/images/home/contact-cta.webp" type="image/webp" />
+          <source srcSet="/images/home/contact-cta-640.webp 640w, /images/home/contact-cta.webp 1376w" sizes="100vw" type="image/webp" />
           <img
             ref={bgImgRef}
             src="/images/home/contact-cta.jpg"

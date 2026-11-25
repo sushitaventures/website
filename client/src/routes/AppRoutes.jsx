@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext.jsx';
 import { BusinessProvider } from '../context/BusinessContext.jsx';
 import { ProtectedRoute } from '../components/admin/ProtectedRoute.jsx';
 import { SmoothScrollProvider } from '../components/common/SmoothScrollProvider.jsx';
-import { AdminLayout } from '../components/admin/AdminLayout.jsx';
 import { HomePage } from '../pages/public/HomePage.jsx';
-import { AboutPage } from '../pages/public/AboutPage.jsx';
-import { ContactPage } from '../pages/public/ContactPage.jsx';
-import { ServiceDetailPage } from '../pages/public/ServiceDetailPage.jsx';
-import { DevStatusPage } from '../pages/DevStatusPage.jsx';
-import { AdminLoginPage } from '../pages/admin/AdminLoginPage.jsx';
-import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage.jsx';
-import { AdminOffersPage } from '../pages/admin/AdminOffersPage.jsx';
-import { AdminVideoPage } from '../pages/admin/AdminVideoPage.jsx';
-import { AdminEnquiriesPage } from '../pages/admin/AdminEnquiriesPage.jsx';
+import { useSeo } from '../seo/useSeo.js';
+
+// Route-level code splitting: the home page ships in the main bundle; every other page
+// (and the whole admin panel) is its own chunk, downloaded only when visited.
+const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
+const AboutPage = named(() => import('../pages/public/AboutPage.jsx'), 'AboutPage');
+const ContactPage = named(() => import('../pages/public/ContactPage.jsx'), 'ContactPage');
+const ServiceDetailPage = named(() => import('../pages/public/ServiceDetailPage.jsx'), 'ServiceDetailPage');
+const DevStatusPage = named(() => import('../pages/DevStatusPage.jsx'), 'DevStatusPage');
+const AdminLayout = named(() => import('../components/admin/AdminLayout.jsx'), 'AdminLayout');
+const AdminLoginPage = named(() => import('../pages/admin/AdminLoginPage.jsx'), 'AdminLoginPage');
+const AdminDashboardPage = named(() => import('../pages/admin/AdminDashboardPage.jsx'), 'AdminDashboardPage');
+const AdminOffersPage = named(() => import('../pages/admin/AdminOffersPage.jsx'), 'AdminOffersPage');
+const AdminVideoPage = named(() => import('../pages/admin/AdminVideoPage.jsx'), 'AdminVideoPage');
+const AdminEnquiriesPage = named(() => import('../pages/admin/AdminEnquiriesPage.jsx'), 'AdminEnquiriesPage');
+
+// Shown for the instant a page chunk loads — matches the dark page background, so no flash
+const PageFallback = () => <div style={{ minHeight: '100vh', background: '#111412' }} aria-busy="true" />;
 
 /**
  * Temporary Section Placeholder Component
@@ -74,12 +82,27 @@ const SectionPlaceholder = ({ title, category }) => (
   </div>
 );
 
+// 404 — kept out of search indexes
+const NotFound = () => {
+  useSeo('/404', { noindex: true, title: 'Page Not Found | Sushita Ventures' });
+  return (
+    <div style={{ textAlign: 'center', marginTop: '100px', color: '#8b92a5', fontFamily: 'var(--font-mono)' }}>
+      <h1 style={{ fontSize: '1.5rem' }}>404 — Not Found</h1>
+      <p style={{ marginTop: '10px' }}>The requested route does not exist.</p>
+      <Link to="/" style={{ color: '#c5a880', display: 'inline-block', marginTop: '16px' }}>
+        Return to Homepage
+      </Link>
+    </div>
+  );
+};
+
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
       <SmoothScrollProvider>
         <BusinessProvider>
           <AuthProvider>
+            <Suspense fallback={<PageFallback />}>
             <Routes>
           {/* Public Cinematic Homepage */}
           <Route path="/" element={<HomePage />} />
@@ -116,17 +139,10 @@ export const AppRoutes = () => {
           {/* 404 Fallback */}
           <Route
             path="*"
-            element={
-              <div style={{ textAlign: 'center', marginTop: '100px', color: '#8b92a5', fontFamily: 'var(--font-mono)' }}>
-                <h2>404 — Not Found</h2>
-                <p style={{ marginTop: '10px' }}>The requested route does not exist.</p>
-                <Link to="/" style={{ color: '#c5a880', display: 'inline-block', marginTop: '16px' }}>
-                  Return to Homepage
-                </Link>
-              </div>
-            }
+            element={<NotFound />}
           />
         </Routes>
+            </Suspense>
       </AuthProvider>
     </BusinessProvider>
   </SmoothScrollProvider>

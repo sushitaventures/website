@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '../components/Badge.jsx';
 import { StatusCard } from '../components/StatusCard.jsx';
 import { getHealth, getReadiness } from '../services/healthService.js';
+import { useSeo } from '../seo/useSeo.js';
 
 export const DevStatusPage = () => {
+  useSeo('/status', { noindex: true, title: 'System Status | Sushita Ventures' });
   const [health, setHealth] = useState({ loading: true, data: null, error: null });
   const [readiness, setReadiness] = useState({ loading: true, data: null, error: null });
   const [lastCheck, setLastCheck] = useState(null);

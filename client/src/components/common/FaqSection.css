@@ -1,0 +1,90 @@
+/* FAQ — mobile first, same system as the rest of the site */
+.faq { padding: 4.5rem 0; position: relative; z-index: 2; }
+.faq--light { background: #E8E1D5; color: #171B19; }
+.faq--dark { background: var(--brand-deep, #111412); color: #F6F4EF; }
+
+.faq-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.faq-heading {
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.9rem, 2.6vw + 0.9rem, 3rem);
+  line-height: 1.15;
+  font-weight: 400;
+  margin: 0 0 2rem;
+}
+
+.faq-item { border-top: 1px solid rgba(166, 140, 101, 0.35); }
+.faq-item:last-child { border-bottom: 1px solid rgba(166, 140, 101, 0.35); }
+
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 56px;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-q::-webkit-details-marker { display: none; }
+
+.faq-q h3 {
+  margin: 0;
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.02rem, 1.2vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Plus that turns into a minus */
+.faq-icon {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: #A68C65;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-icon::after { transform: rotate(90deg); }
+.faq-item[open] .faq-icon::after { transform: rotate(0deg); }
+
+.faq-a {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-family-sans);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  font-weight: 350;
+  opacity: 0.82;
+  max-width: 760px;
+}
+
+.faq-item[open] .faq-a { animation: faq-in 0.45s ease both; }
+
+@keyframes faq-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 0.82; transform: none; }
+}
+
+@media (min-width: 901px) {
+  .faq { padding: clamp(6rem, 9vw, 8rem) 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-item[open] .faq-a { animation: none; }
+}

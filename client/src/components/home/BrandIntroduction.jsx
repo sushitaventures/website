@@ -163,7 +163,8 @@ export const BrandIntroduction = () => {
           <div ref={imageFrameRef} className="brand-intro-image-frame">
             <picture>
               <source
-                srcSet="/images/home/brand-introduction.webp"
+                srcSet="/images/home/brand-introduction-640.webp 640w, /images/home/brand-introduction.webp 1200w"
+                sizes="(max-width: 900px) 100vw, 90vw"
                 type="image/webp"
               />
               <img
@@ -180,7 +181,7 @@ export const BrandIntroduction = () => {
         <div
           ref={wordmarkRef}
           className="brand-intro-signature-zone"
-          aria-label="Sushita Ventures Signature Wordmark"
+          aria-hidden="true"
         >
           <div className="wordmark-container">
             {/* Base Outlined/Muted Wordmark */}

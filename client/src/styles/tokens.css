@@ -85,7 +85,7 @@
 
 :root {
   /* Google Font */
-  --font-manrope: "Manrope", sans-serif;
+  --font-manrope: "Manrope Variable", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Typography Scales */
   --font-family-serif: var(--font-manrope);

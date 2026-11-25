@@ -256,7 +256,7 @@ export const PremiumFooter = () => {
               </li>
               <li>
                 <span className="ft-label">Headquarters</span>
-                <span>55-56, 3rd floor, Sushma Infimium, Zirkpur, Punjab</span>
+                <span>55-56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603</span>
               </li>
             </ul>
           </div>
@@ -280,6 +280,12 @@ export const PremiumFooter = () => {
             <span>Privacy Policy</span>
             <span aria-hidden="true">·</span>
             <span>Terms &amp; Conditions</span>
+          </p>
+          <p className="ft-credit">
+            Designed &amp; maintained by{' '}
+            <a href="https://www.linkedin.com/in/dev-ritik-saini/" target="_blank" rel="noopener noreferrer">
+              Ritik Saini
+            </a>
           </p>
           <button
             type="button"

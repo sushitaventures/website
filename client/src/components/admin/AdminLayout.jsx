@@ -2,8 +2,10 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { Badge } from '../Badge.jsx';
+import { useSeo } from '../../seo/useSeo.js';
 
 export const AdminLayout = () => {
+  useSeo('/admin', { noindex: true, title: 'Admin | Sushita Ventures' });
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 

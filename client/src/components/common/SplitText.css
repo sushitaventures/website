@@ -16,13 +16,9 @@
 .split-word-wrapper {
   display: inline-block;
   white-space: nowrap;
-  margin-right: 0.28em;
-  vertical-align: top;
+  vertical-align: top; /* word gap comes from a real space character in the markup */
 }
 
-.split-word-wrapper:last-child {
-  margin-right: 0;
-}
 
 .split-word-mask {
   display: inline-block;
@@ -56,4 +52,17 @@
 .split-char {
   display: inline-block;
   will-change: transform, opacity;
+}
+
+/* Screen-reader-only copy of the full sentence */
+.split-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

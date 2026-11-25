@@ -65,13 +65,6 @@ export const AboutUs = () => {
           scrollTrigger: { trigger: '.ab-hero', start: 'center center', end: 'bottom top', scrub: true }
         });
 
-        // Full-width panorama: zooms out as it crosses the viewport
-        gsap.fromTo(
-          '.ab-panorama img',
-          { scale: 1.2 },
-          { scale: 1, ease: 'none', scrollTrigger: { trigger: '.ab-panorama', start: 'top bottom', end: 'bottom top', scrub: true } }
-        );
-
         // Founder portraits: gentle inner parallax
         gsap.utils.toArray('.ab-founder-photo img').forEach((img) => {
           gsap.fromTo(
@@ -94,7 +87,7 @@ export const AboutUs = () => {
         <img src="/images/about/about-story-hero.jpg" alt="" className="ab-hero-img" loading="eager" />
         <div className="ab-hero-scrim" />
         <div className="ab-wrap ab-hero-content">
-          <SplitText tag="h1" type="words" animation="3d-flip" className="ab-hero-title" trigger={false} delay={0.3}>
+          <SplitText tag="h1" type="words" animation="lcp-rise" className="ab-hero-title" trigger={false} delay={0.3}>
             More Than Property. A Vision Built on Possibility.
           </SplitText>
           <motion.p
@@ -207,17 +200,6 @@ export const AboutUs = () => {
             ))}
           </Reveal>
         </div>
-        {/* Full-bleed panorama */}
-        {/* Unclipped wrapper triggers the reveal: a fully clipped element never registers as in view */}
-        <Reveal variants={{ hidden: {}, visible: {} }}>
-          <motion.div className="ab-panorama" variants={imageReveal}>
-            <img
-              src="/images/about/principles-visual-panorama.jpg"
-              alt="Integrity, Relationships, Perspective and Long-Term Value"
-              loading="lazy"
-            />
-          </motion.div>
-        </Reveal>
       </section>
 
       {/* 6. Approach */}

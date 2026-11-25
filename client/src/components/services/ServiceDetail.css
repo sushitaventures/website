@@ -255,7 +255,7 @@
   margin-bottom: 2.5rem;
 }
 
-.sd-next-label { color: var(--sd-gold); font-style: italic; }
+.sd-next-label { color: #7a6141; font-style: italic; } /* deeper gold: ≥4.5:1 on ivory */
 .sd-next-arrow { display: inline-block; color: var(--sd-gold); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 .sd-next-link:hover .sd-next-arrow { transform: translateX(10px); }
 

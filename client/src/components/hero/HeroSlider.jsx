@@ -3,6 +3,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "../common/SplitText.jsx";
 import "./HeroSlider.css";
+import { useAfterLoad } from "../../utils/useAfterLoad.js";
 
 const HERO_SLIDES = [
   {
@@ -32,6 +33,9 @@ const AUTO_SLIDE_INTERVAL = 6500;
 
 export const HeroSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Slides 2+ are stacked invisibly in the viewport, so loading="lazy" can't defer them.
+  // Don't render their images until the page has loaded — they stay off the LCP path.
+  const afterLoad = useAfterLoad();
   const heroRef = useRef(null);
   const timerRef = useRef(null);
   const contentRef = useRef(null);
@@ -57,10 +61,13 @@ export const HeroSlider = () => {
     () => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
+      // Zoom only — no opacity fade. The first slide must be visible on the very first
+      // paint: it's the Largest Contentful Paint element, so hiding it until JS runs
+      // would delay LCP by the whole JS download.
       tl.fromTo(
         ".hero-slide.active .hero-media-image",
-        { scale: 1.08, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.4 },
+        { scale: 1.08 },
+        { scale: 1, duration: 1.4 },
       )
         .fromTo(
           ".hero-scrim",
@@ -98,8 +105,9 @@ export const HeroSlider = () => {
             className={`hero-slide ${idx === currentIndex ? "active" : ""}`}
           >
             <div className="hero-media-wrapper">
+              {(idx === 0 || afterLoad) && (
               <picture>
-                <source srcSet={slide.image} type="image/webp" />
+                <source srcSet={`${slide.image.replace(".webp", "-640.webp")} 640w, ${slide.image} 1376w`} sizes="100vw" type="image/webp" />
                 <img
                   src={slide.fallback}
                   alt={slide.alt}
@@ -108,6 +116,7 @@ export const HeroSlider = () => {
                   fetchPriority={idx === 0 ? "high" : "auto"}
                 />
               </picture>
+              )}
             </div>
           </div>
         ))}
@@ -123,7 +132,7 @@ export const HeroSlider = () => {
           <SplitText
             tag="h1"
             type="words"
-            animation="3d-flip"
+            animation="lcp-rise"
             className="hero-heading"
             trigger={false}
             delay={0.2}
