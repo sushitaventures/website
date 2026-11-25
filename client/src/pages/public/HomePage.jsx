@@ -2,16 +2,19 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Navbar } from '../../components/navigation/Navbar.jsx';
 import { HeroSlider } from '../../components/hero/HeroSlider.jsx';
-import { OfferPopup } from '../../components/offers/OfferPopup.jsx';
-import { CinematicVideo } from '../../components/video/CinematicVideo.jsx';
-import { ServicesShowcase } from '../../components/services/ServicesShowcase.jsx';
+import { BrandIntroduction } from '../../components/home/BrandIntroduction.jsx';
+import { ServicesScrollGrid } from '../../components/services/ServicesScrollGrid.jsx';
+import { BusinessPerspective } from '../../components/home/BusinessPerspective.jsx';
+import { WhySushita } from '../../components/home/WhySushita.jsx';
+import { ContactCTA } from '../../components/home/ContactCTA.jsx';
 import { PremiumFooter } from '../../components/footer/PremiumFooter.jsx';
+import { OfferPopup } from '../../components/offers/OfferPopup.jsx';
 
 export const HomePage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    document.title = 'Sushita Ventures | Considered Real Estate Advisory & Capital Portfolio';
+    document.title = 'Sushita Ventures | Real Estate & Investment Opportunities';
   }, []);
 
   useEffect(() => {
@@ -19,10 +22,9 @@ export const HomePage = () => {
       const targetId = location.hash.replace('#', '');
       const el = document.getElementById(targetId);
       if (el) {
-        // Small delay to allow layout to settle
         const timeout = setTimeout(() => {
           el.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        }, 120);
         return () => clearTimeout(timeout);
       }
     }
@@ -30,25 +32,36 @@ export const HomePage = () => {
 
   return (
     <div className="homepage-root">
-      {/* 1. Transparent-to-Blurred Floating Navigation */}
+      {/* Global Header & Navigation */}
       <Navbar />
 
-      {/* 2. Full-Screen Cinematic Hero with Keyframe Text Reveal */}
       <main id="main-content">
+        {/* Section 1: Cinematic Full-Screen Hero */}
         <HeroSlider />
 
-        {/* 3. Cinematic YouTube Video Showcase */}
-        <CinematicVideo />
+        {/* Section 2: Brand Introduction & Animated Wordmark */}
+        <BrandIntroduction />
 
-        {/* 4. Asymmetric Editorial Services Showcase */}
-        <ServicesShowcase />
+        {/* Section 3: Our Services (Signature Scroll-Animated Grid + Exchange Land & Plots) */}
+        <ServicesScrollGrid />
+
+        {/* Section 4: Our Business Perspective */}
+        <BusinessPerspective />
+
+        {/* Section 5: Why Sushita Ventures */}
+        <WhySushita />
+
+        {/* Section 6: Final Brand Statement & Contact CTA (Pre-Footer Card) */}
+        <ContactCTA />
       </main>
 
-      {/* 5. Scroll-Triggered Offer / Exclusive Mandate Popup */}
-      <OfferPopup />
-
-      {/* 6. Full-Screen Monumental Closing Footer */}
+      {/* Section 7: Premium Footer with Rising-Card Reveal */}
       <PremiumFooter />
+
+      {/* Exclusive Mandate / Offer Modal */}
+      <OfferPopup />
     </div>
   );
 };
+
+export default HomePage;

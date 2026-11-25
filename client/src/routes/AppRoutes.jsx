@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext.jsx';
+import { BusinessProvider } from '../context/BusinessContext.jsx';
 import { ProtectedRoute } from '../components/admin/ProtectedRoute.jsx';
+import { SmoothScrollProvider } from '../components/common/SmoothScrollProvider.jsx';
 import { AdminLayout } from '../components/admin/AdminLayout.jsx';
 import { HomePage } from '../pages/public/HomePage.jsx';
 import { AboutPage } from '../pages/public/AboutPage.jsx';
@@ -12,6 +14,7 @@ import { AdminLoginPage } from '../pages/admin/AdminLoginPage.jsx';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage.jsx';
 import { AdminOffersPage } from '../pages/admin/AdminOffersPage.jsx';
 import { AdminVideoPage } from '../pages/admin/AdminVideoPage.jsx';
+import { AdminEnquiriesPage } from '../pages/admin/AdminEnquiriesPage.jsx';
 
 /**
  * Temporary Section Placeholder Component
@@ -33,10 +36,10 @@ const SectionPlaceholder = ({ title, category }) => (
       fontSize: '0.75rem',
       letterSpacing: '0.2em',
       color: 'var(--color-text-accent)',
-      textTransform: 'uppercase',
+      textTransform: 'none',
       marginBottom: '1rem'
     }}>
-      {category || 'SECTION UNDER DESIGN'}
+      {category || 'Section Under Design'}
     </span>
     <h1 style={{
       fontFamily: 'var(--font-family-serif)',
@@ -63,7 +66,7 @@ const SectionPlaceholder = ({ title, category }) => (
       color: 'var(--color-text-primary)',
       fontSize: '0.8rem',
       letterSpacing: '0.12em',
-      textTransform: 'uppercase',
+      textTransform: 'none',
       textDecoration: 'none'
     }}>
       <span>Return to Homepage</span>
@@ -74,8 +77,10 @@ const SectionPlaceholder = ({ title, category }) => (
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+      <SmoothScrollProvider>
+        <BusinessProvider>
+          <AuthProvider>
+            <Routes>
           {/* Public Cinematic Homepage */}
           <Route path="/" element={<HomePage />} />
 
@@ -105,6 +110,7 @@ export const AppRoutes = () => {
             <Route index element={<AdminDashboardPage />} />
             <Route path="homepage/offers" element={<AdminOffersPage />} />
             <Route path="homepage/video" element={<AdminVideoPage />} />
+            <Route path="enquiries" element={<AdminEnquiriesPage />} />
           </Route>
 
           {/* 404 Fallback */}
@@ -122,6 +128,8 @@ export const AppRoutes = () => {
           />
         </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </BusinessProvider>
+  </SmoothScrollProvider>
+  </BrowserRouter>
   );
 };

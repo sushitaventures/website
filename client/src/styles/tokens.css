@@ -1,34 +1,37 @@
 /* Luxury Design Tokens - Architectural & Minimal Direction */
 :root,
 [data-theme="dark"] {
-  /* Sushita Ventures Brand Colors */
-  --brand-primary: #0a0b0d;
-  --brand-accent-gold: #d4af37; /* Vibrant warm metallic gold extracted from emblem */
-  --brand-accent-light: #f5d77f;
-  --brand-accent-deep: #9a7b20;
+  /* Sushita Ventures Brand Colors - Luxury Editorial Palette */
+  --brand-primary: #171B19;
+  --brand-deep: #111412;
+  --brand-ivory: #E8E1D5;
+  --brand-offwhite: #F6F4EF;
+  --brand-accent-gold: #A68C65; /* Muted antique gold */
+  --brand-stone: #777A70;
+  --brand-white: #FFFFFF;
   
-  /* Canvas & Surface Tokens - Deep Obsidian */
-  --color-bg-canvas: #060708;
-  --color-bg-surface-primary: #0f1114;
-  --color-bg-surface-secondary: #16181d;
-  --color-bg-surface-elevated: #1f2229;
-  --color-bg-glass: rgba(6, 7, 8, 0.88);
-  --color-bg-glass-subtle: rgba(212, 175, 55, 0.04);
+  /* Canvas & Surface Tokens */
+  --color-bg-canvas: #111412;
+  --color-bg-surface-primary: #171B19;
+  --color-bg-surface-secondary: #1a1e1c;
+  --color-bg-surface-elevated: #232825;
+  --color-bg-glass: rgba(17, 20, 18, 0.88);
+  --color-bg-glass-subtle: rgba(166, 140, 101, 0.05);
 
   /* Semantic Typography Colors */
-  --color-text-primary: #f8f9fa;
-  --color-text-secondary: #a3a7b0;
-  --color-text-muted: #676c76;
-  --color-text-accent: var(--brand-accent-gold);
-  --color-text-inverted: #0a0b0d;
+  --color-text-primary: #F6F4EF;
+  --color-text-secondary: #E8E1D5;
+  --color-text-muted: #777A70;
+  --color-text-accent: #A68C65;
+  --color-text-inverted: #171B19;
 
   /* Line, Border & Scrim Tokens */
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-medium: rgba(212, 175, 55, 0.22);
+  --color-border-subtle: rgba(232, 225, 213, 0.1);
+  --color-border-medium: rgba(166, 140, 101, 0.25);
   --color-border-active: var(--brand-accent-gold);
-  --scrim-hero: linear-gradient(180deg, rgba(8, 9, 10, 0.5) 0%, rgba(8, 9, 10, 0.3) 40%, rgba(8, 9, 10, 0.85) 100%);
-  --scrim-card: linear-gradient(180deg, rgba(8, 9, 10, 0) 30%, rgba(8, 9, 10, 0.9) 100%);
-  --scrim-radial: radial-gradient(ellipse at center, rgba(6, 7, 8, 0.65) 0%, rgba(6, 7, 8, 0.88) 60%, #060708 100%);
+  --scrim-hero: linear-gradient(180deg, rgba(17, 20, 18, 0.55) 0%, rgba(17, 20, 18, 0.35) 40%, rgba(17, 20, 18, 0.88) 100%);
+  --scrim-card: linear-gradient(180deg, rgba(17, 20, 18, 0) 25%, rgba(17, 20, 18, 0.92) 100%);
+  --scrim-radial: radial-gradient(ellipse at center, rgba(17, 20, 18, 0.6) 0%, rgba(17, 20, 18, 0.88) 60%, #111412 100%);
 
   /* Radii & Shadows */
   --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.25);
@@ -81,10 +84,18 @@
 }
 
 :root {
+  /* Google Font */
+  --font-manrope: "Manrope", sans-serif;
+
   /* Typography Scales */
-  --font-family-serif: "Cinzel", "Playfair Display", "Didot", "Bodoni MT", serif;
-  --font-family-sans: "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif;
-  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-family-serif: var(--font-manrope);
+  --font-family-sans: var(--font-manrope);
+  --font-family-mono: "Manrope", ui-monospace, monospace;
+
+  /* Legacy & Shorthand Aliases */
+  --font-mono: var(--font-family-mono);
+  --font-serif: var(--font-family-serif);
+  --font-sans: var(--font-family-sans);
 
   /* Typography Scales - Calibrated for Manrope Proportions */
   --font-size-display-1: clamp(2.4rem, 4.8vw + 0.8rem, 4.5rem);

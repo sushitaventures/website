@@ -14,6 +14,16 @@ export const env = {
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   MONGODB_URI: process.env.MONGODB_URI || '',
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+
+  // Outgoing mail (Nodemailer SMTP). Mail is skipped — and leads are marked
+  // "not_configured" — until SMTP_HOST, SMTP_USER and SMTP_PASS are set.
+  // Who receives lead emails is set in the admin panel (default contact@sushitaventures.com).
+  SMTP_HOST: process.env.SMTP_HOST || '',
+  SMTP_PORT: Number.parseInt(process.env.SMTP_PORT, 10) || 587,
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true', // true for port 465, false for 587 (STARTTLS)
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_PASS: process.env.SMTP_PASS || '',
+  MAIL_FROM: process.env.MAIL_FROM || process.env.SMTP_USER || '',
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV === 'development',
   isTest: process.env.NODE_ENV === 'test'

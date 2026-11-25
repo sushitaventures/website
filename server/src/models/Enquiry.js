@@ -67,6 +67,19 @@ const enquirySchema = new mongoose.Schema(
     userAgent: {
       type: String,
       default: ''
+    },
+    // Delivery state of the team notification email for this lead
+    mail: {
+      status: {
+        type: String,
+        enum: ['pending', 'sent', 'failed', 'not_configured'],
+        default: 'pending'
+      },
+      attempts: { type: Number, default: 0 },
+      lastAttemptAt: { type: Date, default: null },
+      sentAt: { type: Date, default: null },
+      messageId: { type: String, default: '' },
+      error: { type: String, default: '' }
     }
   },
   {
@@ -77,5 +90,6 @@ const enquirySchema = new mongoose.Schema(
 enquirySchema.index({ createdAt: -1 });
 enquirySchema.index({ status: 1, createdAt: -1 });
 enquirySchema.index({ lookingFor: 1 });
+enquirySchema.index({ 'mail.status': 1, createdAt: -1 });
 
 export const Enquiry = mongoose.model('Enquiry', enquirySchema);

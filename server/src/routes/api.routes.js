@@ -4,6 +4,7 @@ import { checkReadiness } from '../controllers/health.controller.js';
 import adminAuthRoutes from './admin/auth.routes.js';
 import adminOfferRoutes from './admin/offers.routes.js';
 import adminVideoRoutes from './admin/video.routes.js';
+import adminEnquiryRoutes from './admin/enquiries.routes.js';
 import publicHomepageRoutes from './public/homepage.routes.js';
 import publicEnquiryRoutes from './public/enquiry.routes.js';
 
@@ -19,6 +20,7 @@ router.use('/admin/auth', adminAuthRoutes);
 // Admin Content Management (Protected)
 router.use('/admin/offers', adminOfferRoutes);
 router.use('/admin/homepage/video', adminVideoRoutes);
+router.use('/admin/enquiries', adminEnquiryRoutes);
 
 // Public APIs (Unauthenticated)
 router.use('/public/homepage', publicHomepageRoutes);

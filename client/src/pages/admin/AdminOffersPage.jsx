@@ -375,7 +375,7 @@ export const AdminOffersPage = () => {
 
               {/* Live Preview Panel */}
               <div style={{ marginTop: '12px', padding: '16px', background: '#090a0f', border: '1px dashed #2d3345', borderRadius: '8px' }}>
-                <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>Live Card Preview</span>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'none', fontFamily: 'var(--font-mono)' }}>Live Card Preview</span>
                 <div style={{ marginTop: '10px', background: '#181b26', border: '1px solid #282e42', borderRadius: '10px', padding: '18px' }}>
                   <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff' }}>{formData.title || 'Offer Heading Preview'}</h4>
                   <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '6px' }}>{formData.shortDescription || 'Short description preview will appear here...'}</p>

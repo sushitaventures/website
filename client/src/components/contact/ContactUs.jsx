@@ -1,54 +1,65 @@
-import React, { useState } from 'react';
-import { enquiryApi } from '../../services/enquiryApi.js';
-import './ContactUs.css';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  fadeInUp,
+  fadeInScale,
+  staggerContainer,
+  staggerItem,
+  slideInLeft,
+  slideInRight,
+  defaultViewport,
+} from "../../utils/motionVariants.js";
+import { enquiryApi } from "../../services/enquiryApi.js";
+import "./ContactUs.css";
 
 const LOOKING_FOR_OPTIONS = [
-  'Residential Property',
-  'Commercial Property',
-  'Industrial Property',
-  'Land / Plots',
-  'Hotels / Hospitality',
-  'Leasing',
-  'Exchange Property',
-  'Sick Property',
-  'Other'
+  "Residential Property",
+  "Commercial Property",
+  "Industrial Property",
+  "Land / Plots",
+  "Hotels / Hospitality",
+  "Leasing",
+  "Exchange Property",
+  "Sick Property",
+  "Other",
 ];
 
 export const ContactUs = () => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    phoneNumber: '',
-    email: '',
-    city: '',
-    lookingFor: '',
-    requirement: ''
+    fullName: "",
+    phoneNumber: "",
+    email: "",
+    city: "",
+    lookingFor: "",
+    requirement: "",
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
-  const [statusMessage, setStatusMessage] = useState('');
+  const [statusMessage, setStatusMessage] = useState("");
 
   const validate = () => {
     const errs = {};
-    if (!formData.fullName.trim()) errs.fullName = 'Full Name is required.';
+    if (!formData.fullName.trim()) errs.fullName = "Full Name is required.";
     if (!formData.phoneNumber.trim()) {
-      errs.phoneNumber = 'Phone Number is required.';
+      errs.phoneNumber = "Phone Number is required.";
     } else {
-      const cleanPhone = formData.phoneNumber.replace(/[\s\-\(\)\.]/g, '');
+      const cleanPhone = formData.phoneNumber.replace(/[\s\-\(\)\.]/g, "");
       if (cleanPhone.length < 7 || cleanPhone.length > 20) {
-        errs.phoneNumber = 'Please enter a valid phone number.';
+        errs.phoneNumber = "Please enter a valid phone number.";
       }
     }
 
     if (!formData.email.trim()) {
-      errs.email = 'Email Address is required.';
+      errs.email = "Email Address is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      errs.email = 'Please enter a valid email address.';
+      errs.email = "Please enter a valid email address.";
     }
 
-    if (!formData.city.trim()) errs.city = 'City or location is required.';
-    if (!formData.lookingFor) errs.lookingFor = 'Please select a property category.';
+    if (!formData.city.trim()) errs.city = "City or location is required.";
+    if (!formData.lookingFor)
+      errs.lookingFor = "Please select a property category.";
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -65,32 +76,33 @@ export const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus(null);
-    setStatusMessage('');
+    setStatusMessage("");
 
     if (!validate()) return;
 
     setIsSubmitting(true);
     try {
       const response = await enquiryApi.submit(formData);
-      setSubmitStatus('success');
+      setSubmitStatus("success");
       setStatusMessage(
         response.message ||
-        "Thank you for reaching out to Sushita Ventures. We've received your enquiry and our team will connect with you shortly."
+          "Thank you for reaching out to Sushita Ventures. We've received your enquiry and our team will connect with you shortly.",
       );
       // Reset form on success
       setFormData({
-        fullName: '',
-        phoneNumber: '',
-        email: '',
-        city: '',
-        lookingFor: '',
-        requirement: ''
+        fullName: "",
+        phoneNumber: "",
+        email: "",
+        city: "",
+        lookingFor: "",
+        requirement: "",
       });
       setErrors({});
     } catch (err) {
-      setSubmitStatus('error');
+      setSubmitStatus("error");
       setStatusMessage(
-        err.message || 'Unable to submit your enquiry at this time. Please try again or reach out directly.'
+        err.message ||
+          "Unable to submit your enquiry at this time. Please try again or reach out directly.",
       );
     } finally {
       setIsSubmitting(false);
@@ -100,21 +112,39 @@ export const ContactUs = () => {
   return (
     <div className="contact-main-wrapper">
       <div className="contact-container">
-
         {/* 1. Page Introduction Section */}
-        <section className="contact-intro-section" aria-label="Introduction">
-          <span className="contact-eyebrow">LET'S CONNECT</span>
-          <h1 className="contact-heading">Let's Find the Right Opportunity for You.</h1>
+        <motion.section
+          className="contact-intro-section"
+          aria-label="Introduction"
+          initial="hidden"
+          whileInView="visible"
+          viewport={defaultViewport}
+          variants={fadeInUp}
+        >
+          <h1 className="contact-heading">Let's Connect</h1>
           <p className="contact-description">
-            Every great property decision begins with the right conversation. Whether you're exploring commercial spaces, industrial properties, land opportunities, hospitality assets, or a strategic property transaction, Sushita Ventures is here to understand your requirements and help you take the next step with clarity and confidence.
+            Every great property decision begins with the right conversation.
+            Whether you're exploring commercial spaces, industrial properties,
+            land opportunities, hospitality assets, or a strategic property
+            transaction, Sushita Ventures is here to understand your
+            requirements and help you take the next step with clarity and
+            confidence.
           </p>
-        </section>
+        </motion.section>
 
         {/* 2. Main Two-Column Section: Visual Experience & Form */}
-        <section className="contact-grid-section" aria-label="Contact Form and Experience">
-
+        <section
+          className="contact-grid-section"
+          aria-label="Contact Form and Experience"
+        >
           {/* Left Column — Visual Experience */}
-          <div className="contact-visual-card">
+          <motion.div
+            className="contact-visual-card"
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={slideInLeft}
+          >
             <img
               src="/images/services/contact-experience.jpg"
               alt="Sushita Ventures Architectural Environment"
@@ -123,30 +153,44 @@ export const ContactUs = () => {
             />
             <div className="contact-visual-scrim" />
             <div className="contact-visual-overlay-content">
-              <h2 className="contact-visual-quote-title">A Better Perspective on Property.</h2>
-              <p className="contact-visual-quote-sub">Thoughtful conversations. Meaningful opportunities.</p>
+              <h2 className="contact-visual-quote-title">
+                A Better Perspective on Property.
+              </h2>
+              <p className="contact-visual-quote-sub">
+                Thoughtful conversations. Meaningful opportunities.
+              </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Column — Contact Form */}
-          <div className="contact-form-card">
-            <h2 className="form-header-title">Tell Us What You're Looking For.</h2>
+          <motion.div
+            className="contact-form-card"
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={slideInRight}
+          >
+            <h2 className="form-header-title">
+              Tell Us What You're Looking For.
+            </h2>
 
-
-            {submitStatus === 'success' && (
+            {submitStatus === "success" && (
               <div className="form-alert-box form-alert-success" role="alert">
                 {statusMessage}
               </div>
             )}
 
-            {submitStatus === 'error' && (
+            {submitStatus === "error" && (
               <div className="form-alert-box form-alert-error" role="alert">
                 {statusMessage}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} noValidate className="enquiry-form-grid">
-
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="enquiry-form-grid"
+            >
               {/* Full Name */}
               <div className="form-field-group">
                 <label htmlFor="fullName" className="form-label">
@@ -159,10 +203,12 @@ export const ContactUs = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="e.g. Alexander Wright"
-                  className={`form-input ${errors.fullName ? 'has-error' : ''}`}
+                  className={`form-input ${errors.fullName ? "has-error" : ""}`}
                   disabled={isSubmitting}
                 />
-                {errors.fullName && <span className="field-error-msg">{errors.fullName}</span>}
+                {errors.fullName && (
+                  <span className="field-error-msg">{errors.fullName}</span>
+                )}
               </div>
 
               {/* Two-Column: Phone & Email */}
@@ -178,10 +224,14 @@ export const ContactUs = () => {
                     value={formData.phoneNumber}
                     onChange={handleChange}
                     placeholder="+91 98765 43210"
-                    className={`form-input ${errors.phoneNumber ? 'has-error' : ''}`}
+                    className={`form-input ${errors.phoneNumber ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   />
-                  {errors.phoneNumber && <span className="field-error-msg">{errors.phoneNumber}</span>}
+                  {errors.phoneNumber && (
+                    <span className="field-error-msg">
+                      {errors.phoneNumber}
+                    </span>
+                  )}
                 </div>
 
                 <div className="form-field-group">
@@ -195,10 +245,12 @@ export const ContactUs = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="alexander@domain.com"
-                    className={`form-input ${errors.email ? 'has-error' : ''}`}
+                    className={`form-input ${errors.email ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   />
-                  {errors.email && <span className="field-error-msg">{errors.email}</span>}
+                  {errors.email && (
+                    <span className="field-error-msg">{errors.email}</span>
+                  )}
                 </div>
               </div>
 
@@ -215,10 +267,12 @@ export const ContactUs = () => {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="e.g. Zirakpur / Chandigarh"
-                    className={`form-input ${errors.city ? 'has-error' : ''}`}
+                    className={`form-input ${errors.city ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   />
-                  {errors.city && <span className="field-error-msg">{errors.city}</span>}
+                  {errors.city && (
+                    <span className="field-error-msg">{errors.city}</span>
+                  )}
                 </div>
 
                 <div className="form-field-group">
@@ -230,15 +284,21 @@ export const ContactUs = () => {
                     name="lookingFor"
                     value={formData.lookingFor}
                     onChange={handleChange}
-                    className={`form-select ${errors.lookingFor ? 'has-error' : ''}`}
+                    className={`form-select ${errors.lookingFor ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   >
-                    <option value="" disabled>Select property interest</option>
+                    <option value="" disabled>
+                      Select property interest
+                    </option>
                     {LOOKING_FOR_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
                     ))}
                   </select>
-                  {errors.lookingFor && <span className="field-error-msg">{errors.lookingFor}</span>}
+                  {errors.lookingFor && (
+                    <span className="field-error-msg">{errors.lookingFor}</span>
+                  )}
                 </div>
               </div>
 
@@ -266,62 +326,96 @@ export const ContactUs = () => {
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
-                  <span>SENDING ENQUIRY...</span>
+                  <span>Sending enquiry...</span>
                 ) : (
                   <>
-                    <span>SEND ENQUIRY</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <span>Send Enquiry</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                   </>
                 )}
               </button>
             </form>
-          </div>
+          </motion.div>
         </section>
 
         {/* 3. Contact Information Strip */}
-        <section className="contact-info-strip" aria-label="Direct Contact Channels">
-
-          <div className="info-item-card">
-            <span className="info-item-badge">GENERAL ENQUIRIES</span>
+        <motion.section
+          className="contact-info-strip"
+          aria-label="Direct Contact Channels"
+          initial="hidden"
+          whileInView="visible"
+          viewport={defaultViewport}
+          variants={staggerContainer(0.12, 0.1)}
+        >
+          <motion.div className="info-item-card" variants={staggerItem}>
             <h3 className="info-item-title">Consultation & Strategy</h3>
             <p className="info-item-detail">
-              For property enquiries, business discussions, and general assistance.
+              For property enquiries, business discussions, and general
+              assistance.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="info-item-card">
-            <span className="info-item-badge">DIRECT LINE</span>
+          <motion.div className="info-item-card" variants={staggerItem}>
             <h3 className="info-item-title">Telephone Advisory</h3>
             <p className="info-item-detail">
-              <span style={{ color: 'var(--color-text-secondary)' }}>Contact Number:</span><br />
-              <span className="info-item-link">+91 [Contact Number Configured by Admin]</span>
+              <span style={{ color: "var(--color-text-secondary)" }}>
+                Contact Number:
+              </span>
+              <br />
+              <span className="info-item-link">
+                +91 [Contact Number Configured by Admin]
+              </span>
             </p>
-          </div>
+          </motion.div>
 
-          <div className="info-item-card">
-            <span className="info-item-badge">ELECTRONIC MAIL</span>
+          <motion.div className="info-item-card" variants={staggerItem}>
             <h3 className="info-item-title">Official Correspondence</h3>
             <p className="info-item-detail">
-              <span style={{ color: 'var(--color-text-secondary)' }}>Corporate Desk:</span><br />
-              <span className="info-item-link">advisory@sushitaventures.com [Pending Final Verification]</span>
+              <span style={{ color: "var(--color-text-secondary)" }}>
+                Corporate Desk:
+              </span>
+              <br />
+              <span className="info-item-link">
+                contact@sushitaventures.com
+              </span>
             </p>
-          </div>
-
-        </section>
+          </motion.div>
+        </motion.section>
 
         {/* 4. Location and Map Section */}
-        <section className="location-map-section" aria-label="Office Location and Directions">
-          <header className="location-header">
-            <span className="contact-eyebrow">FIND US</span>
-            <h2 className="contact-heading">Let's Meet and Explore Possibilities.</h2>
-            <p className="contact-description">
-              We welcome conversations that lead to meaningful opportunities. Find our office location and connect with the Sushita Ventures team.
+        <section
+          className="location-map-section"
+          aria-label="Office Location and Directions"
+        >
+          <motion.header
+            className="location-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeInUp}
+          >
+            <h2 className="contact-heading">Find Us</h2>
+            <p className="contact-subheading">
+              Let's Meet and Explore Possibilities.
             </p>
-          </header>
+          </motion.header>
 
-          <div className="map-frame-wrapper">
+          <motion.div
+            className="map-frame-wrapper"
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeInScale}
+          >
             {/* Interactive Responsive Google Map (Subtle Dark Architectural Filter) */}
             <iframe
               className="map-iframe"
@@ -333,7 +427,6 @@ export const ContactUs = () => {
 
             {/* Floating Location Marker Card */}
             <div className="map-floating-card">
-              <span className="map-card-badge">CORPORATE OFFICE</span>
               <h3 className="map-card-company">Sushita Ventures</h3>
               <p className="map-card-address">
                 55, 56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603
@@ -344,15 +437,21 @@ export const ContactUs = () => {
                 rel="noopener noreferrer"
                 className="map-directions-link"
               >
-                <span>GET DIRECTIONS</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <span>Get Directions</span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </a>
             </div>
-          </div>
+          </motion.div>
         </section>
-
       </div>
     </div>
   );

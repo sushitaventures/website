@@ -10,7 +10,7 @@ export const Badge = ({ variant = 'default', children }) => {
     fontSize: '0.75rem',
     fontWeight: '600',
     letterSpacing: '0.04em',
-    textTransform: 'uppercase',
+    textTransform: 'none',
     fontFamily: 'var(--font-mono)'
   };
 

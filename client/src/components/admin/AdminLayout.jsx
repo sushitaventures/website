@@ -44,6 +44,9 @@ export const AdminLayout = () => {
           <NavLink to="/admin" end style={navItemStyle}>
             📊 Dashboard
           </NavLink>
+          <NavLink to="/admin/enquiries" style={navItemStyle}>
+            📨 Leads &amp; Enquiries
+          </NavLink>
           <NavLink to="/admin/homepage/offers" style={navItemStyle}>
             🏷️ Homepage Offers
           </NavLink>
@@ -52,7 +55,7 @@ export const AdminLayout = () => {
           </NavLink>
           
           <div style={{ margin: '20px 0 10px 0', borderTop: '1px solid #1e2230', paddingTop: '16px' }}>
-            <span style={{ fontSize: '0.7rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', paddingLeft: '8px' }}>
+            <span style={{ fontSize: '0.7rem', color: '#475569', textTransform: 'none', letterSpacing: '0.05em', paddingLeft: '8px' }}>
               Public Navigation
             </span>
           </div>

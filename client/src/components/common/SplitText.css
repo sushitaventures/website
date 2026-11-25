@@ -1,0 +1,59 @@
+/* ==========================================================================
+   SplitText Component Styles
+   Enables masked reveals, 3D rotations, and natural fluid word wrapping
+   ========================================================================== */
+
+.split-text-root {
+  display: block;
+}
+
+.split-words-mode {
+  text-wrap: balance;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.split-word-wrapper {
+  display: inline-block;
+  white-space: nowrap;
+  margin-right: 0.28em;
+  vertical-align: top;
+}
+
+.split-word-wrapper:last-child {
+  margin-right: 0;
+}
+
+.split-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+  transform-origin: 50% 100%;
+}
+
+.split-space {
+  display: inline;
+  white-space: normal;
+}
+
+.split-chars-mode {
+  text-wrap: balance;
+}
+
+.split-char-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.split-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}

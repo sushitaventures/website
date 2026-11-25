@@ -6,7 +6,7 @@
 export const FOUNDERS_DATA = [
   {
     id: '01',
-    number: 'FOUNDER & MANAGING DIRECTOR',
+    number: 'Founder & Managing Director',
     name: 'Sunita Attri',
     designation: 'Founder & Managing Director',
     roles: ['Entrepreneur', 'Motivational Speaker', 'Trainer', 'Career Counsellor'],
@@ -26,7 +26,7 @@ export const FOUNDERS_DATA = [
   },
   {
     id: '02',
-    number: 'DIRECTOR & CO-FOUNDER',
+    number: 'Director & Co-Founder',
     name: 'Er. Sushil Attri',
     designation: 'Director & Co-Founder',
     roles: ['Engineer', 'Entrepreneur', 'Motivational Speaker', 'Business Strategist'],
@@ -49,7 +49,6 @@ export const FOUNDERS_DATA = [
 ];
 
 export const VISION_DATA = {
-  eyebrow: 'OUR VISION',
   title: 'Building a Global Real Estate & Multi-Service Corporate Group.',
   description1: 'Our long-term vision is to establish Sushita Ventures as a trusted brand with a strong presence across India and international markets, supported by a growing network of offices, franchise partners and professional teams.',
   description2: 'We aim to create an ecosystem where clients, investors, channel partners and professionals grow together.',
@@ -57,7 +56,6 @@ export const VISION_DATA = {
 };
 
 export const PROMISE_DATA = {
-  eyebrow: 'OUR PROMISE',
   title1: "We don't just connect people with properties.",
   title2: 'We connect people with opportunities.',
   company: 'Sushita Ventures Pvt. Ltd.',
@@ -111,12 +109,17 @@ export const APPROACH_STEPS = [
 ];
 
 export const EXPERTISE_TILES = [
-  { title: 'Residential Properties', slug: 'residential' },
-  { title: 'Commercial Properties', slug: 'commercial' },
-  { title: 'Industrial Properties', slug: 'industrial' },
-  { title: 'Land / Plots', slug: 'land-plots' },
-  { title: 'Hotels & Hospitality', slug: 'hotels' },
-  { title: 'Corporate Leasing', slug: 'leasing' },
-  { title: 'Property Exchange', slug: 'exchange-property' },
-  { title: 'Sick & Turnaround Assets', slug: 'sick-property' }
+  { title: 'Hotel & Resorts', slug: 'hotel-resorts' },
+  { title: 'Leasing', slug: 'leasing' },
+  { title: 'Residential Property', slug: 'residential-property' },
+  { title: 'Commercial Property', slug: 'commercial-property' },
+  { title: 'Industrial Property', slug: 'industrial-property' },
+  { title: 'Exchange Land & Plots', slug: 'exchange-land-plots' }
+];
+
+// Founders 03 & 04: placeholders until final content is ready. Same shape as FOUNDERS_DATA.
+const LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
+export const FOUNDER_PLACEHOLDERS = [
+  { id: '03', name: 'Founder Name', designation: 'Founder Title', rolesString: 'Lorem | Ipsum | Dolor', bioParagraphs: [LOREM, LOREM], image: '/images/founders/founder-placeholder.svg', imageAlt: 'Founder portrait placeholder' },
+  { id: '04', name: 'Founder Name', designation: 'Founder Title', rolesString: 'Lorem | Ipsum | Dolor', bioParagraphs: [LOREM, LOREM], image: '/images/founders/founder-placeholder.svg', imageAlt: 'Founder portrait placeholder' }
 ];

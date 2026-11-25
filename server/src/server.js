@@ -2,6 +2,7 @@ import http from 'node:http';
 import app from './app.js';
 import { env, validateEnv } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { verifyMailTransport } from './services/mail.service.js';
 
 let server;
 
@@ -20,6 +21,7 @@ const startServer = async () => {
       console.log(`[Server] Luxury Real Estate Backend running on http://localhost:${env.PORT} in ${env.NODE_ENV} mode`);
       console.log(`[Server] Health Endpoint: http://localhost:${env.PORT}/api/v1/health`);
       console.log(`[Server] Readiness Endpoint: http://localhost:${env.PORT}/api/v1/health/ready`);
+      verifyMailTransport(); // logs SMTP readiness; never blocks startup
     });
 
     // 4. Setup graceful shutdown triggers

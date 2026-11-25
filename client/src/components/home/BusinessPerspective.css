@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Section 4: Our Business Perspective Styles
+   ========================================================================== */
+
+.perspective-root {
+  position: relative;
+  width: 100%;
+  background-color: var(--brand-primary, #171B19);
+  color: var(--brand-offwhite, #F6F4EF);
+  padding: clamp(4rem, 8vw, 6.5rem) 0;
+  overflow: hidden;
+  z-index: 7;
+}
+
+.perspective-container {
+  max-width: var(--container-max-width, 1440px);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+/* Left Column */
+.perspective-content-col {
+  max-width: 100%;
+}
+
+/* Heading - STRICT: NO EYEBROW */
+.perspective-heading {
+  font-family: var(--font-family-serif);
+  font-size: clamp(2rem, 2.4vw + 0.6rem, 3.2rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  font-weight: 400;
+  margin: 0 0 1.75rem;
+  text-wrap: balance;
+}
+
+.perspective-sub {
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.1rem, 1.3vw, 1.3rem);
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--brand-accent-gold, #A68C65);
+  margin: 0 0 1rem;
+}
+
+.perspective-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding: 1rem 2.1rem;
+  background: var(--brand-offwhite, #F6F4EF);
+  color: var(--brand-primary, #171B19);
+  border-radius: var(--radius-pill, 9999px);
+  font-family: var(--font-family-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.perspective-btn:hover {
+  background: var(--brand-accent-gold, #A68C65);
+  transform: translateY(-2px);
+}
+
+/* Brand strip under both columns */
+.perspective-brand {
+  width: calc(100% - 2 * var(--container-padding));
+  max-width: calc(var(--container-max-width, 1440px) - 2 * var(--container-padding));
+  margin: clamp(2.5rem, 5vw, 3.5rem) auto 0;
+  padding-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  border-top: 1px solid rgba(232, 225, 213, 0.12);
+}
+
+.perspective-brand-logo {
+  height: 52px;
+  width: auto;
+}
+
+.perspective-brand-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.perspective-brand-name {
+  font-family: var(--font-family-serif);
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.perspective-brand-tag {
+  font-family: var(--font-family-sans);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(232, 225, 213, 0.6);
+}
+
+.perspective-p {
+  font-family: var(--font-family-sans);
+  font-size: clamp(0.92rem, 0.98vw, 1.05rem);
+  line-height: 1.7;
+  color: rgba(232, 225, 213, 0.8);
+  margin: 0;
+  font-weight: 350;
+}
+
+/* Right Column (50-55% visual presence) */
+.perspective-visual-col {
+  position: relative;
+  width: 100%;
+}
+
+.perspective-image-frame {
+  width: 100%;
+  height: clamp(280px, 70vw, 460px);
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.perspective-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.perspective-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(17, 20, 18, 0.1) 0%,
+    rgba(17, 20, 18, 0) 60%,
+    rgba(17, 20, 18, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+@media (min-width: 901px) {
+  .perspective-container {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+  .perspective-image-frame {
+    height: clamp(340px, 72vh, 600px);
+  }
+  .perspective-brand {
+    grid-template-columns: auto repeat(3, 1fr);
+  }
+  .perspective-content-col {
+    max-width: 580px;
+  }
+}

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { fadeInUp, fadeInScale, defaultViewport } from '../../utils/motionVariants.js';
 import { homepageApi } from '../../services/homepageApi.js';
+import { SplitText } from '../common/SplitText.jsx';
 import './CinematicVideo.css';
 
 export const CinematicVideo = () => {
@@ -34,9 +37,10 @@ export const CinematicVideo = () => {
       <section id="video-showcase-section" className="video-showcase-root" aria-label="Curated Architectural Film">
         <div className="video-showcase-container">
           <header className="video-header">
-            <span className="video-eyebrow">CINEMATIC PERSPECTIVE</span>
-            <h2 className="video-heading">Our Stories</h2>
-
+            <span className="video-eyebrow">Cinematic Perspective</span>
+            <SplitText tag="h2" animation="3d-flip" className="video-heading">
+              Our Stories
+            </SplitText>
           </header>
 
           <div className="video-frame-wrapper">
@@ -56,7 +60,7 @@ export const CinematicVideo = () => {
           </div>
 
           <div className="video-caption-bar">
-            <span>CURATED ARCHITECTURAL VISION</span>
+            <span>Curated Architectural Vision</span>
             <span>Architectural Perspective</span>
           </div>
         </div>
@@ -72,53 +76,54 @@ export const CinematicVideo = () => {
     >
       <div className="video-showcase-container">
         <header className="video-header">
-          <span className="video-eyebrow">CINEMATIC PERSPECTIVE</span>
-          <h2 className="video-heading">
-            {videoConfig?.title || 'Architecture Beyond the Ordinary.'}
-          </h2>
-          <p className="video-description">
-            {videoConfig?.description || 'Explore a curated visual perspective on architecture, spaces, and property environments. From commercial structures to distinctive developments, every space presents a different possibility.'}
-          </p>
+          <span className="video-eyebrow">Cinematic Perspective</span>
+          <SplitText tag="h2" animation="3d-flip" className="video-heading">
+            Our Stories
+          </SplitText>
         </header>
 
-        <div className="video-frame-wrapper">
-          {/* Façade: User clicks or interacts to activate iframe */}
-          {!isPlaying ? (
+        <motion.div
+          className="video-frame-wrapper"
+          initial="hidden"
+          whileInView="visible"
+          viewport={defaultViewport}
+          variants={fadeInScale}
+        >
+          {isPlaying && embedUrl ? (
+            <div className="video-iframe-container">
+              <iframe
+                src={embedUrl}
+                title="Curated Architectural Showcase Film"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="video-iframe"
+              />
+            </div>
+          ) : (
             <div
               className="video-poster-facade"
               style={{ backgroundImage: `url(${posterImage})` }}
-              onClick={() => setIsPlaying(true)}
-              role="button"
-              tabIndex={0}
-              aria-label="Play curated architectural film"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setIsPlaying(true);
-                }
-              }}
+              role="region"
+              aria-label="Curated Architectural Film Play Area"
             >
               <div className="video-poster-scrim" />
-              <div className="video-play-trigger">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <button
+                type="button"
+                className="video-play-trigger"
+                onClick={() => setIsPlaying(true)}
+                aria-label="Play architectural showcase film"
+              >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-              </div>
+              </button>
             </div>
-          ) : (
-            <iframe
-              className="video-iframe-element"
-              src={embedUrl || `https://www.youtube-nocookie.com/embed/${videoConfig?.videoId}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1`}
-              title="Curated Architectural Showcase"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
           )}
-        </div>
+        </motion.div>
 
         <div className="video-caption-bar">
-          <span>CURATED ARCHITECTURAL VISION</span>
-          <span>{videoConfig?.videoId ? `Showcase ID: ${videoConfig.videoId}` : 'Privacy-Enhanced Embed'}</span>
+          <span>Curated Architectural Vision</span>
+          <span>Architectural Perspective</span>
         </div>
       </div>
     </section>

@@ -1,76 +1,48 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import './HeroSlider.css';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { SplitText } from "../common/SplitText.jsx";
+import "./HeroSlider.css";
 
 const HERO_SLIDES = [
   {
     id: 1,
-    image: '/images/services/service-residential.jpg',
-    alt: 'Prime luxury residential architectural villa and private estate'
+    image: "/images/home/hero-hotel-resorts.webp",
+    fallback: "/images/home/hero-hotel-resorts.jpg",
+    category: "Hotel & Resorts",
+    alt: "Luxury contemporary hotel and resort architecture with infinity reflection pool",
   },
   {
     id: 2,
-    image: '/images/hero/hero-slide-1.jpg',
-    alt: 'Commercial glass high-rise towers in DLF Cyber City Gurugram, India'
+    image: "/images/home/hero-commercial.webp",
+    fallback: "/images/home/hero-commercial.jpg",
+    category: "Commercial Property",
+    alt: "Ultra-premium contemporary commercial architecture and corporate towers",
   },
   {
     id: 3,
-    image: '/images/hero/hero-slide-2.jpg',
-    alt: 'Modern commercial architecture at World Trade Center Bengaluru, India'
+    image: "/images/home/hero-industrial.webp",
+    fallback: "/images/home/hero-industrial.jpg",
+    category: "Industrial Property",
+    alt: "High-end industrial logistics campus architecture",
   },
-  {
-    id: 4,
-    image: '/images/hero/hero-slide-3.jpg',
-    alt: 'Luxury high-rise residential and commercial skyline development in Mumbai, India'
-  },
-  {
-    id: 5,
-    image: '/images/hero/hero-slide-4.jpg',
-    alt: 'Master-planned integrated residential and commercial development in Mumbai, India'
-  }
 ];
 
-const AUTO_SLIDE_INTERVAL = 7000;
+const AUTO_SLIDE_INTERVAL = 6500;
 
 export const HeroSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isInView, setIsInView] = useState(true);
   const heroRef = useRef(null);
   const timerRef = useRef(null);
+  const contentRef = useRef(null);
+  const scrollIndicatorRef = useRef(null);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % HERO_SLIDES.length);
   }, []);
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  }, []);
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-
-  // Visibility observer to replay text reveal on scroll-up
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0.3 }
-    );
-
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   // Automated slideshow timer
   useEffect(() => {
-    if (!isPlaying) return;
-
     timerRef.current = setInterval(() => {
       nextSlide();
     }, AUTO_SLIDE_INTERVAL);
@@ -78,138 +50,103 @@ export const HeroSlider = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying, nextSlide, currentIndex]);
+  }, [nextSlide]);
 
-  const handleScrollToServices = () => {
-    const servicesEl = document.getElementById('services-section');
-    if (servicesEl) {
-      servicesEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Initial GSAP Choreography
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-  const handleScrollToVideo = () => {
-    const videoEl = document.getElementById('video-showcase-section');
-    if (videoEl) {
-      videoEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+      tl.fromTo(
+        ".hero-slide.active .hero-media-image",
+        { scale: 1.08, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.4 },
+      )
+        .fromTo(
+          ".hero-scrim",
+          { opacity: 0 },
+          { opacity: 1, duration: 1.0 },
+          "-=1.0",
+        )
+        .fromTo(
+          ".hero-description",
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.9 },
+          "-=0.4",
+        )
+        .fromTo(
+          scrollIndicatorRef.current,
+          { opacity: 0, y: -10 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.4",
+        );
+    },
+    { scope: heroRef },
+  );
 
   return (
     <section
       className="hero-root"
       ref={heroRef}
-      aria-label="Cinematic Luxury Real Estate Showcase"
+      aria-label="Sushita Ventures Cinematic Hero"
     >
-      {/* Background Slider */}
+      {/* Background Slides Track with Crossfade & Subtle Zoom */}
       <div className="hero-slider-track" aria-hidden="true">
         {HERO_SLIDES.map((slide, idx) => (
           <div
             key={slide.id}
-            className={`hero-slide ${idx === currentIndex ? 'active' : ''}`}
+            className={`hero-slide ${idx === currentIndex ? "active" : ""}`}
           >
             <div className="hero-media-wrapper">
-              <img
-                src={slide.image}
-                alt={slide.alt}
-                className="hero-media-image"
-                loading={idx === 0 ? "eager" : "lazy"}
-                fetchPriority={idx === 0 ? "high" : "auto"}
-              />
+              <picture>
+                <source srcSet={slide.image} type="image/webp" />
+                <img
+                  src={slide.fallback}
+                  alt={slide.alt}
+                  className="hero-media-image"
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  fetchPriority={idx === 0 ? "high" : "auto"}
+                />
+              </picture>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Scrim Overlay */}
+      {/* Atmospheric Scrim Overlay */}
       <div className="hero-scrim" />
 
-      {/* Foreground Content with Scroll-triggered Keyframe Animation */}
+      {/* Foreground Content - Lower-Left Architectural Framing */}
       <div className="hero-content-container">
-        <div className="hero-inner-wrapper">
-          {isInView && (
-            <>
-              <span className="hero-eyebrow animate-hero-reveal">
-                PREMIUM PROPERTIES
-              </span>
-
-              <h1 className="hero-heading animate-hero-reveal-d1">
-                Where Trust Builds <span className="hero-heading-gold">Wealth.</span>
-              </h1>
-
-              <p className="hero-description animate-hero-reveal-d2">
-                Real Estate Consultancy | Investment Opportunities | Property Solutions
-              </p>
-            </>
-          )}
+        <div className="hero-inner-wrapper" ref={contentRef}>
+          {/* STRICT HEADING RULE: No eyebrow label. Starts directly with main heading */}
+          <SplitText
+            tag="h1"
+            type="words"
+            animation="3d-flip"
+            className="hero-heading"
+            trigger={false}
+            delay={0.2}
+            duration={1.2}
+          >
+            Where Trust Builds Wealth
+          </SplitText>
         </div>
       </div>
 
-      {/* Slider Controls Bar */}
-      <div className="hero-controls-bar">
-        <div className="hero-controls-container">
-          {/* Progress Indicators */}
-          <div className="hero-indicators" role="tablist" aria-label="Slider navigation">
-            {HERO_SLIDES.map((slide, idx) => (
-              <button
-                key={slide.id}
-                type="button"
-                role="tab"
-                aria-selected={idx === currentIndex}
-                aria-label={`Slide ${idx + 1} of ${HERO_SLIDES.length}`}
-                className={`indicator-bullet ${idx === currentIndex ? 'active' : ''}`}
-                onClick={() => goToSlide(idx)}
-              >
-                <div
-                  className={`indicator-progress-fill ${idx === currentIndex && isPlaying ? 'running' : ''}`}
-                />
-              </button>
-            ))}
-          </div>
-
-          {/* Navigation Arrows & Play/Pause */}
-          <div className="hero-nav-buttons">
-            <button
-              type="button"
-              className="hero-arrow-btn"
-              aria-label={isPlaying ? "Pause autoplay" : "Resume autoplay"}
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="6" y="4" width="4" height="16" />
-                  <rect x="14" y="4" width="4" height="16" />
-                </svg>
-              ) : (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
-              )}
-            </button>
-
-            <button
-              type="button"
-              className="hero-arrow-btn"
-              aria-label="Previous slide"
-              onClick={prevSlide}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              className="hero-arrow-btn"
-              aria-label="Next slide"
-              onClick={nextSlide}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          </div>
+      {/* Subtle Scroll Indicator */}
+      <div
+        className="hero-scroll-indicator"
+        ref={scrollIndicatorRef}
+        aria-hidden="true"
+      >
+        <span className="scroll-indicator-text">Scroll</span>
+        <div className="scroll-indicator-line">
+          <div className="scroll-indicator-pip" />
         </div>
       </div>
     </section>
   );
 };
+
+export default HeroSlider;

@@ -9,8 +9,16 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   text-size-adjust: 100%;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+html.lenis {
+  scroll-behavior: auto !important;
 }
 
 body {
@@ -32,6 +40,17 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+.homepage-root {
+  position: relative;
+  width: 100%;
+}
+
+#main-content {
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-bg-canvas);
 }
 
 a {
@@ -70,4 +89,36 @@ img, video {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-accent);
+}
+
+/* ==========================================================================
+   Mobile swipe carousel — add class "m-swipe" to any card container.
+   Phones/tablets only: cards become a native touch carousel with the next
+   card peeking in. Desktop keeps each component's own grid.
+   Doubled class beats single-class component rules regardless of load order.
+   ========================================================================== */
+@media (max-width: 900px) {
+  .m-swipe.m-swipe {
+    display: flex;
+    grid-template-columns: none;
+    grid-template-areas: none;
+    gap: 0.85rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--container-padding);
+    /* bleed to the screen edges so cards swipe edge-to-edge */
+    margin-inline: calc(-1 * var(--container-padding));
+    padding-inline: var(--container-padding);
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+
+  .m-swipe.m-swipe::-webkit-scrollbar { display: none; }
+
+  .m-swipe.m-swipe > * {
+    flex: 0 0 82%;
+    max-width: 360px;
+    scroll-snap-align: start;
+  }
 }

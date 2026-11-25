@@ -1,5 +1,6 @@
 import { Enquiry } from '../../models/Enquiry.js';
 import { sendSuccess, sendError } from '../../utils/response.js';
+import { sendEnquiryNotification } from '../../services/mail.service.js';
 
 const VALID_CATEGORIES = [
   'Residential Property',
@@ -106,6 +107,20 @@ export const submitEnquiry = async (req, res) => {
         lookingFor
       });
     }
+
+    // Email the team in the background so the visitor isn't kept waiting on SMTP.
+    // The outcome is written to the lead's mail status (visible + retryable in the admin panel).
+    const leadForMail = savedEnquiry || {
+      fullName: fullName.trim(),
+      phoneNumber: phoneNumber.trim(),
+      email: email.trim().toLowerCase(),
+      city: city.trim(),
+      lookingFor,
+      requirement: requirement ? requirement.trim() : ''
+    };
+    sendEnquiryNotification(leadForMail).catch((err) =>
+      console.error('[PublicEnquiry] Unexpected mail error:', err.message)
+    );
 
     return sendSuccess(res, {
       statusCode: 201,
