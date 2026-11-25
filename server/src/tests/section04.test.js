@@ -153,12 +153,12 @@ const runTests = async () => {
     assert(loginRes.body.data.user.email === 'founder@luxuryrealestate.com', 'Returns user profile');
     assert(loginRes.body.data.user.passwordHash === undefined, 'Never exposes passwordHash in login response');
 
-    const sessionId = loginRes.body.data.sessionId;
-    assert(sessionId && sessionId.length === 64, 'Issues cryptographically random 64-char session ID');
-
-    // Check Set-Cookie header
+    // Session ID lives only in the HttpOnly cookie — never in the JSON body
+    assert(loginRes.body.data.sessionId === undefined, 'Does not expose session ID in the login response body');
     const setCookie = loginRes.headers.get('set-cookie');
     assert(setCookie && setCookie.includes('admin_session=') && setCookie.includes('HttpOnly'), 'Sets HttpOnly admin_session cookie');
+    const sessionId = (setCookie.match(/admin_session=([a-f0-9]+)/) || [])[1];
+    assert(sessionId && sessionId.length === 64, 'Issues cryptographically random 64-char session ID');
 
     // Verified session in database
     const sessionDoc = await AdminSession.findOne({ sessionId });
@@ -173,6 +173,25 @@ const runTests = async () => {
     // Test unauthorized request to /me
     const unauthMe = await makeRequest('/api/v1/admin/auth/me');
     assert(unauthMe.status === 401 && unauthMe.body.error.code === 'UNAUTHORIZED', 'Rejects unauthenticated request to /me (401)');
+
+    // NoSQL operator injection via cookie-parser JSON cookies ("j:" prefix) must not match a session
+    for (const evil of ['j:{"$ne":null}', 'j:{"$gt":""}', 'j:{"$regex":".*"}']) {
+      const bypass = await makeRequest('/api/v1/admin/auth/me', {
+        headers: { Cookie: `admin_session=${encodeURIComponent(evil)}` }
+      });
+      assert(bypass.status === 401, `Rejects operator-injection cookie ${evil} (401)`);
+    }
+    const bypassLeads = await makeRequest('/api/v1/admin/enquiries', {
+      headers: { Cookie: `admin_session=${encodeURIComponent('j:{"$ne":null}')}` }
+    });
+    assert(bypassLeads.status === 401, 'Rejects operator-injection cookie on /admin/enquiries (401)');
+
+    // Logout with an injected cookie must not delete anyone's session
+    await makeRequest('/api/v1/admin/auth/logout', {
+      method: 'POST',
+      headers: { Cookie: `admin_session=${encodeURIComponent('j:{"$ne":null}')}` }
+    });
+    assert(await AdminSession.findOne({ sessionId }), 'Injected-cookie logout does not delete real sessions');
 
     // ----------------------------------------------------
     // TEST GROUP 4: Authorization Protection on Admin Endpoints

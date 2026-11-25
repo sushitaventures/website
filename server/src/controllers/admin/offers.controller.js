@@ -123,7 +123,12 @@ export const createOffer = async (req, res) => {
 export const updateOffer = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = { ...req.body, updatedBy: req.adminUser.id };
+    // Only editable offer fields — never let the request body set createdBy, _id, timestamps, etc.
+    const EDITABLE = ['title', 'shortDescription', 'fullDescription', 'imageUrl', 'ctaLabel', 'ctaUrl', 'status', 'active', 'startDate', 'endDate'];
+    const updates = { updatedBy: req.adminUser.id };
+    for (const key of EDITABLE) {
+      if (req.body?.[key] !== undefined) updates[key] = req.body[key];
+    }
 
     const offer = await Offer.findByIdAndUpdate(id, updates, {
       returnDocument: 'after',

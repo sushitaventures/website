@@ -2,17 +2,32 @@ import { AdminSession } from '../models/AdminSession.js';
 import { AdminUser } from '../models/AdminUser.js';
 import { sendError } from '../utils/response.js';
 
+// Session IDs are 32 random bytes as hex (see auth.controller login).
+const SESSION_ID_PATTERN = /^[a-f0-9]{64}$/;
+
+/**
+ * Read the session ID from the cookie or a Bearer header — and only accept a plain
+ * 64-char hex string. This check is a security boundary: cookie-parser turns cookies
+ * prefixed "j:" into JSON objects, so without it `admin_session=j:{"$ne":null}` would
+ * reach Mongo as a query operator and match ANY session (full auth bypass).
+ */
+export const readSessionId = (req) => {
+  let sessionId = req.cookies?.admin_session;
+
+  // Fallback for API clients / automated testing with Authorization header
+  if (!sessionId && typeof req.headers.authorization === 'string') {
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      sessionId = parts[1];
+    }
+  }
+
+  return typeof sessionId === 'string' && SESSION_ID_PATTERN.test(sessionId) ? sessionId : null;
+};
+
 export const requireAdmin = async (req, res, next) => {
   try {
-    let sessionId = req.cookies?.admin_session;
-
-    // Fallback for API clients / automated testing with Authorization header
-    if (!sessionId && req.headers.authorization) {
-      const parts = req.headers.authorization.split(' ');
-      if (parts.length === 2 && parts[0] === 'Bearer') {
-        sessionId = parts[1];
-      }
-    }
+    const sessionId = readSessionId(req);
 
     if (!sessionId) {
       return sendError(res, {

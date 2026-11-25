@@ -17,6 +17,24 @@ const getArgs = () => {
   return args;
 };
 
+// Prompt without echoing what's typed (for passwords)
+const askHidden = (query) => {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+  return new Promise((resolve) => {
+    rl.stdoutMuted = false;
+    rl._writeToOutput = (str) => {
+      if (rl.stdoutMuted && !/^\r?\n$/.test(str)) rl.output.write('*');
+      else rl.output.write(str);
+    };
+    rl.question(query, (ans) => {
+      rl.close();
+      process.stdout.write('\n');
+      resolve(ans);
+    });
+    rl.stdoutMuted = true;
+  });
+};
+
 const askQuestion = (query) => {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -37,7 +55,12 @@ const run = async () => {
   try {
     const args = getArgs();
     let email = args.email;
-    let password = args.password;
+
+    // Passwords on the command line end up in shell history and process listings.
+    if (args.password) {
+      console.error('Error: --password is not supported. Run without it and enter the password at the hidden prompt.');
+      process.exit(1);
+    }
 
     if (!email) {
       email = await askQuestion('Enter Administrator Email: ');
@@ -48,9 +71,7 @@ const run = async () => {
       process.exit(1);
     }
 
-    if (!password) {
-      password = await askQuestion('Enter Administrator Password (min 8 characters): ');
-    }
+    const password = await askHidden('Enter Administrator Password (min 8 characters): ');
 
     if (!password || password.length < 8) {
       console.error('Error: Password must be at least 8 characters long.');

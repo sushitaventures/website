@@ -2,15 +2,21 @@ import crypto from 'node:crypto';
 import { AdminUser } from '../../models/AdminUser.js';
 import { AdminSession } from '../../models/AdminSession.js';
 import { sendSuccess, sendError } from '../../utils/response.js';
+import bcrypt from 'bcryptjs';
 import { env } from '../../config/env.js';
+import { readSessionId } from '../../middlewares/auth.middleware.js';
 
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+// Compared against when the email doesn't exist, so a wrong email takes as long as a
+// wrong password — response timing can't be used to discover admin emails.
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 12);
 
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
       return sendError(res, {
         statusCode: 400,
         code: 'VALIDATION_ERROR',
@@ -21,16 +27,11 @@ export const login = async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await AdminUser.findOne({ email: normalizedEmail }).select('+passwordHash');
 
-    if (!user) {
-      return sendError(res, {
-        statusCode: 401,
-        code: 'INVALID_CREDENTIALS',
-        message: 'Invalid email or password'
-      });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    // Always run one bcrypt comparison (real or dummy) — constant-ish timing either way
+    const isMatch = user
+      ? await user.comparePassword(password)
+      : await bcrypt.compare(password, DUMMY_PASSWORD_HASH).then(() => false);
+    if (!user || !isMatch) {
       return sendError(res, {
         statusCode: 401,
         code: 'INVALID_CREDENTIALS',
@@ -75,8 +76,9 @@ export const login = async (req, res) => {
           email: user.email,
           role: user.role,
           lastLoginAt: user.lastLoginAt
-        },
-        sessionId // Returned for programmatic client / test flexibility
+        }
+        // The session ID is deliberately NOT returned: it lives only in the HttpOnly
+        // cookie, so injected scripts can never read it.
       }
     });
   } catch (error) {
@@ -91,14 +93,8 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    let sessionId = req.cookies?.admin_session || req.adminSession?.sessionId;
-
-    if (!sessionId && req.headers.authorization) {
-      const parts = req.headers.authorization.split(' ');
-      if (parts.length === 2 && parts[0] === 'Bearer') {
-        sessionId = parts[1];
-      }
-    }
+    // Validated hex string only — never pass a raw cookie value into a Mongo filter
+    const sessionId = readSessionId(req);
 
     if (sessionId) {
       await AdminSession.deleteOne({ sessionId });
