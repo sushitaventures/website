@@ -1,11 +1,10 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext.jsx';
 import { BusinessProvider } from '../context/BusinessContext.jsx';
 import { ProtectedRoute } from '../components/admin/ProtectedRoute.jsx';
 import { SmoothScrollProvider } from '../components/common/SmoothScrollProvider.jsx';
 import { HomePage } from '../pages/public/HomePage.jsx';
-import { useSeo } from '../seo/useSeo.js';
 
 // Route-level code splitting: the home page ships in the main bundle; every other page
 // (and the whole admin panel) is its own chunk, downloaded only when visited.
@@ -82,20 +81,6 @@ const SectionPlaceholder = ({ title, category }) => (
   </div>
 );
 
-// 404 — kept out of search indexes
-const NotFound = () => {
-  useSeo('/404', { noindex: true, title: 'Page Not Found | Sushita Ventures' });
-  return (
-    <div style={{ textAlign: 'center', marginTop: '100px', color: '#8b92a5', fontFamily: 'var(--font-mono)' }}>
-      <h1 style={{ fontSize: '1.5rem' }}>404 — Not Found</h1>
-      <p style={{ marginTop: '10px' }}>The requested route does not exist.</p>
-      <Link to="/" style={{ color: '#c5a880', display: 'inline-block', marginTop: '16px' }}>
-        Return to Homepage
-      </Link>
-    </div>
-  );
-};
-
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -136,11 +121,8 @@ export const AppRoutes = () => {
             <Route path="enquiries" element={<AdminEnquiriesPage />} />
           </Route>
 
-          {/* 404 Fallback */}
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
+          {/* Unknown URLs: send visitors to the homepage */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
             </Suspense>
       </AuthProvider>

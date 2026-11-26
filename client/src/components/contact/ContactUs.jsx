@@ -44,11 +44,8 @@ export const ContactUs = () => {
     if (!formData.fullName.trim()) errs.fullName = "Full Name is required.";
     if (!formData.phoneNumber.trim()) {
       errs.phoneNumber = "Phone Number is required.";
-    } else {
-      const cleanPhone = formData.phoneNumber.replace(/[\s\-\(\)\.]/g, "");
-      if (cleanPhone.length < 7 || cleanPhone.length > 20) {
-        errs.phoneNumber = "Please enter a valid phone number.";
-      }
+    } else if (!/^\d{7,15}$/.test(formData.phoneNumber.trim())) {
+      errs.phoneNumber = "Please enter a valid phone number (digits only).";
     }
 
     if (!formData.email.trim()) {
@@ -66,7 +63,9 @@ export const ContactUs = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    // Phone: keep digits only, whatever is typed or pasted
+    const value = name === "phoneNumber" ? e.target.value.replace(/\D/g, "") : e.target.value;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
@@ -202,7 +201,7 @@ export const ContactUs = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  placeholder="e.g. Alexander Wright"
+                  placeholder="e.g. Amandeep Singh"
                   className={`form-input ${errors.fullName ? "has-error" : ""}`}
                   disabled={isSubmitting}
                 />
@@ -219,11 +218,13 @@ export const ContactUs = () => {
                   </label>
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={15}
                     id="phoneNumber"
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="9876543210"
                     className={`form-input ${errors.phoneNumber ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   />
@@ -244,7 +245,7 @@ export const ContactUs = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="alexander@domain.com"
+                    placeholder="Amandeep@domain.com"
                     className={`form-input ${errors.email ? "has-error" : ""}`}
                     disabled={isSubmitting}
                   />
@@ -429,7 +430,8 @@ export const ContactUs = () => {
             <div className="map-floating-card">
               <h3 className="map-card-company">Sushita Ventures</h3>
               <p className="map-card-address">
-                55, 56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603
+                55, 56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab
+                140603
               </p>
               <a
                 href="https://maps.google.com/?q=Sushma+Infinium+Zirakpur+Punjab+140603"

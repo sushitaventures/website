@@ -1,7 +1,8 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 import { Enquiry } from '../models/Enquiry.js';
-import { getEnquiryRecipients } from '../models/NotificationSettings.js';
+import { buildThankYouHtml, LOGO_ATTACHMENT } from './templates/thankYouEmail.js';
+import { getEnquiryRecipients, DEFAULT_ENQUIRY_RECIPIENT } from '../models/NotificationSettings.js';
 
 // Recipients come from the admin panel (default contact@sushitaventures.com); only SMTP login is needed here.
 export const isMailConfigured = () => Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
@@ -14,7 +15,8 @@ const getTransporter = () => {
       port: env.SMTP_PORT,
       secure: env.SMTP_SECURE,
       auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-      connectionTimeout: 15000,
+      // Covers DNS lookup + connect; this network resolves via NAT64 and can be slow
+      connectionTimeout: 30000,
       greetingTimeout: 15000,
       socketTimeout: 20000
     });
@@ -75,6 +77,63 @@ const buildEnquiryEmail = (enquiry) => {
   };
 };
 
+// Network hiccups (DNS lookup timed out, connection timeout, reset) are retried up to 3 attempts
+// with a short pause. Auth/recipient errors are permanent and fail immediately.
+const TRANSIENT = /timed? ?out|ETIMEOUT|ETIMEDOUT|EDNS|ENOTFOUND|EAI_AGAIN|ECONNRESET|ECONNREFUSED|ESOCKET|ECONNECTION/i;
+export const isTransientMailError = (err) => TRANSIENT.test(`${err?.code} ${err?.message}`);
+
+const sendWithRetry = async (message, attempts = 3) => {
+  for (let i = 1; ; i++) {
+    try {
+      return await getTransporter().sendMail(message);
+    } catch (err) {
+      if (i >= attempts || !isTransientMailError(err)) throw err;
+      console.warn(`[Mail] Transient SMTP error (attempt ${i}/${attempts}), retrying:`, err.message);
+      await new Promise((r) => setTimeout(r, 3000 * i));
+    }
+  }
+};
+
+/**
+ * Thank-you email to the visitor who submitted the form. Best effort: never throws.
+ * Replies go to the team inbox, not the no-reply sender.
+ */
+export const sendEnquiryThankYou = async (enquiry) => {
+  if (!isMailConfigured() || !enquiry.email) return { status: 'skipped' };
+  const html = buildThankYouHtml({
+    name: escapeHtml(enquiry.fullName),
+    category: escapeHtml(enquiry.lookingFor),
+    city: escapeHtml(enquiry.city || ''),
+    siteUrl: env.SITE_URL,
+    contactEmail: DEFAULT_ENQUIRY_RECIPIENT
+  });
+  const text = `Dear ${enquiry.fullName},
+
+Thank you for your enquiry about ${enquiry.lookingFor}. We have received your details, and a member of our team will get in touch with you shortly.
+
+If you would like to add anything in the meantime, simply reply to this email.
+
+Warm regards,
+Team Sushita Ventures
+55-56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab 140603 · ${DEFAULT_ENQUIRY_RECIPIENT}`;
+
+  try {
+    await sendWithRetry({
+      from: env.MAIL_FROM,
+      to: enquiry.email,
+      replyTo: DEFAULT_ENQUIRY_RECIPIENT,
+      subject: 'Thank you for contacting Sushita Ventures',
+      html,
+      text,
+      attachments: [LOGO_ATTACHMENT]
+    });
+    return { status: 'sent' };
+  } catch (error) {
+    console.error('[Mail] Thank-you email failed:', error.message);
+    return { status: 'failed', error: error.message };
+  }
+};
+
 /**
  * Send the team notification for an enquiry and record the outcome on the lead.
  * Never throws: failures are stored on the enquiry so the admin panel can show and retry them.
@@ -96,14 +155,7 @@ export const sendEnquiryNotification = async (enquiry) => {
   try {
     const { subject, html, text } = buildEnquiryEmail(enquiry);
     const recipients = await getEnquiryRecipients();
-    const info = await getTransporter().sendMail({
-      from: env.MAIL_FROM,
-      to: recipients.join(', '),
-      replyTo: enquiry.email,
-      subject,
-      html,
-      text
-    });
+    const info = await sendWithRetry({ from: env.MAIL_FROM, to: recipients.join(', '), replyTo: enquiry.email, subject, html, text });
 
     if (enquiry._id) {
       await Enquiry.updateOne(

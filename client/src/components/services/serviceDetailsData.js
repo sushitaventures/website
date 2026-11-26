@@ -5,13 +5,15 @@
  * 3. Residential Property
  * 4. Commercial Property
  * 5. Industrial Property
- * 6. Exchange Land & Plots (Standalone)
+ * 6. Exchange Property
+ * 7. Land & Plots
+ * 8. Sick Property
  */
 
 export const SERVICE_DETAILS_MAP = {
   'hotel-resorts': {
     id: '01',
-    number: '01 / 06',
+    number: '01 / 08',
     title: 'Hotel & Resorts',
     shortTitle: 'Hotel & Resorts',
     slug: 'hotel-resorts',
@@ -36,9 +38,13 @@ export const SERVICE_DETAILS_MAP = {
       {
         title: 'Distressed Hospitality Turnaround',
         desc: 'Facilitating recapitalization, operator restructuring, and debt resolution for underperforming hotels.'
+      },
+      {
+        title: 'Leasing & Management Contracts',
+        desc: 'Structuring hotel leases and management contracts that balance owner returns with operator control, with clear terms on rent, revenue share, fees and performance.'
       }
     ],
-    targetAssets: ['Luxury City Hotels', 'Boutique Leisure Resorts', 'Business Transit Hotels', 'Serviced Hospitality Apartments'],
+    targetAssets: ['Luxury Premium Hotels', 'Wellness Resorts', 'Business Transit Hotels'],
     advisoryProcess: [
       { step: '01', title: 'Confidential Profiling', desc: 'Safeguarding brand reputation through strictly confidential, discrete engagements.' },
       { step: '02', title: 'Operational Audit', desc: 'Analyzing EBITDA, room inventory, licenses, and physical asset condition.' },
@@ -49,45 +55,49 @@ export const SERVICE_DETAILS_MAP = {
 
   'leasing': {
     id: '02',
-    number: '02 / 06',
+    number: '02 / 08',
     title: 'Leasing',
     shortTitle: 'Leasing',
     slug: 'leasing',
-    tagline: 'Property leasing opportunities considered through location, requirements and the needs of businesses.',
+    tagline: 'Leasing for hotels, resorts, offices, retail and healthcare spaces, shaped around location, business needs and lasting partnerships.',
     heroImage: '/images/home/service-leasing.webp',
     fallbackImage: '/images/services/service-leasing.jpg',
     heroAlt: 'Premium contemporary commercial leasing property with large glass facades',
-    overview: 'A successful lease agreement aligns operational agility with predictable occupancy cost. We represent both enterprise tenants seeking strategic workplace locations and asset owners seeking reliable institutional rent rolls across commercial office spaces, high-street retail, and specialized facilities.',
+    overview: 'A good lease works for both sides: the occupier gets the right space on workable terms, and the owner gets a dependable tenant and steady income. We represent property owners, hoteliers, businesses and operators across hospitality, commercial, retail and healthcare leasing, from finding the right match to negotiating terms and registering the agreement.',
     pillars: [
       {
+        title: 'Hospitality Leasing',
+        desc: 'Leasing hotels, resorts, banquet properties and serviced apartments to established operators, on fixed rent, revenue share or hybrid terms that protect the asset.'
+      },
+      {
         title: 'Tenant Representation',
-        desc: 'Guiding corporate occupiers in site selection, lease negotiations, space planning options, and rent benchmarking.'
+        desc: 'Helping businesses find the right office, showroom or clinic, with site selection, rent benchmarking and negotiation handled for them.'
       },
       {
         title: 'Landlord Representation',
-        desc: 'Formulating leasing strategies to attract high-credit corporate tenants and minimize vacancy periods.'
+        desc: 'Marketing properties to credible, well-matched tenants and operators to reduce vacancy and secure reliable long-term income.'
+      },
+      {
+        title: 'Retail & Showroom Leasing',
+        desc: 'Placing brands in high-footfall high streets, malls and commercial corridors where visibility drives business.'
       },
       {
         title: 'Lease Renewal & Restructuring',
-        desc: 'Renegotiating existing terms, escalations, lock-ins, and space rights to reflect current economic realities.'
-      },
-      {
-        title: 'Retail Flagship Leasing',
-        desc: 'Positioning premier retail spaces on prominent high streets and luxury commercial corridors.'
+        desc: 'Renegotiating rent, escalations, lock-in periods and exit terms so existing leases keep pace with the market.'
       }
     ],
-    targetAssets: ['Corporate Workplaces', 'High-Street Retail Outlets', 'Showrooms & Flagships', 'Institutional Clinics'],
+    targetAssets: ['Hotels & Resorts', 'Corporate Offices', 'High-Street Retail & Showrooms', 'Banquet & Event Venues', 'Healthcare Institutions'],
     advisoryProcess: [
-      { step: '01', title: 'Requirement Scope', desc: 'Defining required floor plates, headcount projections, and budget constraints.' },
-      { step: '02', title: 'Inventory Shortlisting', desc: 'Curating Grade-A commercial options with verified OC and fire NOCs.' },
-      { step: '03', title: 'Commercial Negotiation', desc: 'Structuring favorable rent-free periods, CAM terms, and escalation clauses.' },
-      { step: '04', title: 'Agreement Execution', desc: 'Vetting registered lease agreements to ensure sustained legal protection.' }
+      { step: '01', title: 'Requirement Brief', desc: 'Understanding the space, location, budget and lease structure you need, as owner or occupier.' },
+      { step: '02', title: 'Matching & Shortlisting', desc: 'Shortlisting verified properties, tenants or hotel operators with the right approvals and track record.' },
+      { step: '03', title: 'Terms Negotiation', desc: 'Agreeing rent or revenue share, deposits, escalations, lock-in, fit-out periods and maintenance terms.' },
+      { step: '04', title: 'Agreement & Handover', desc: 'Drafting and registering the lease, then coordinating a smooth handover of the property.' }
     ]
   },
 
   'residential-property': {
     id: '03',
-    number: '03 / 06',
+    number: '03 / 08',
     title: 'Residential Property',
     shortTitle: 'Residential Property',
     slug: 'residential-property',
@@ -98,23 +108,34 @@ export const SERVICE_DETAILS_MAP = {
     overview: 'Acquiring or divesting prime residential property is both a deeply personal pursuit and a significant capital decision. We advise private individuals, families, and high-net-worth investors on premium residential assets — spanning luxury penthouses, bespoke villas, gated estate developments, and high-yield residential investment portfolios.',
     pillars: [
       {
-        title: 'Luxury Estates & Villas',
-        desc: 'Curated access to prime private villas, bespoke bungalows, and expansive architectural estates in premier micro-markets.'
+        title: 'Homes Matched to Your Needs',
+        desc: 'Villas, apartments, independent floors and residential plots shortlisted around your preferred location, budget and family requirements.'
       },
       {
-        title: 'Penthouses & High-End Apartments',
-        desc: 'Identifying exceptional high-floor residences with panoramic views, private amenities, and institutional developer credentials.'
+        title: 'Verified Titles & Approvals',
+        desc: 'Every property is checked for clear ownership, RERA registration, building approvals and pending dues before you commit.'
       },
       {
-        title: 'Title Diligence & Clear Legal Ownership',
-        desc: 'Comprehensive multi-tier legal audit, municipal approval verification, and chain-of-title scrutiny for absolute peace of mind.'
+        title: 'Integrity in Every Deal',
+        desc: 'Clear terms in writing, regular updates at every stage and full disclosure of any issue we find, so you always know exactly where your purchase stands.'
       },
       {
-        title: 'Private Portfolio Advisory',
-        desc: 'Advising family offices and individual investors on residential acquisitions with strong rental yields and long-term capital appreciation.'
+        title: 'Ethical Business',
+        desc: 'Transparent pricing with no hidden charges, and honest advice that puts your interest first, even when that means recommending you wait or walk away.'
+      },
+      {
+        title: 'Long-Term Value',
+        desc: 'We look beyond today’s price at location growth, connectivity, construction quality and resale or rental potential, so your home keeps its worth.'
       }
     ],
-    targetAssets: ['Bespoke Luxury Villas', 'Ultra-Luxury Penthouses', 'Gated Community Residences', 'Prime Residential Plots'],
+    // Category photos live in /public/images/services/residential/ — a missing file shows text only
+    targetAssets: [
+      { name: 'Bespoke Luxury Villas', img: '/images/services/residential/villas.jpg' },
+      { name: 'Ultra-Luxury Flats & Penthouses', img: '/images/services/residential/flats-penthouses.jpg' },
+      { name: 'Luxury Independent Houses', img: '/images/services/residential/independent-houses.jpg' },
+      { name: 'Gated Community Residences', img: '/images/services/residential/gated-community.jpg' },
+      { name: 'Land Parcels', img: '/images/services/residential/land-parcels.jpg' }
+    ],
     advisoryProcess: [
       { step: '01', title: 'Lifestyle & Capital Brief', desc: 'Understanding your family preferences, lifestyle expectations, spatial needs, and investment goals.' },
       { step: '02', title: 'Curated Asset Shortlisting', desc: 'Presenting exclusively verified residential properties with transparent pricing and clean documentation.' },
@@ -125,7 +146,7 @@ export const SERVICE_DETAILS_MAP = {
 
   'commercial-property': {
     id: '04',
-    number: '04 / 06',
+    number: '04 / 08',
     title: 'Commercial Property',
     shortTitle: 'Commercial Property',
     slug: 'commercial-property',
@@ -152,7 +173,7 @@ export const SERVICE_DETAILS_MAP = {
         desc: 'Customized advisory across institutional sale-and-leaseback, joint developments, and structured outright acquisitions.'
       }
     ],
-    targetAssets: ['Grade-A Office Towers', 'Commercial Business Parks', 'High-Street Retail Flags', 'Institutional Co-Working Hubs'],
+    targetAssets: ['Grade-A Office Towers', 'Commercial Business Parks', 'Shopping Malls & Retail Centres', 'High-Street Retail Flags', 'Hospitals ', 'Institutional Co-Working Hubs'],
     advisoryProcess: [
       { step: '01', title: 'Mandate Discovery', desc: 'Understanding your business profile, capital criteria, and operational spatial requirements.' },
       { step: '02', title: 'Market Diligence', desc: 'Screening verified clear-title commercial assets across priority micro-markets.' },
@@ -163,7 +184,7 @@ export const SERVICE_DETAILS_MAP = {
 
   'industrial-property': {
     id: '05',
-    number: '05 / 06',
+    number: '05 / 08',
     title: 'Industrial Property',
     shortTitle: 'Industrial Property',
     slug: 'industrial-property',
@@ -171,7 +192,7 @@ export const SERVICE_DETAILS_MAP = {
     heroImage: '/images/home/service-industrial.webp',
     fallbackImage: '/images/services/service-industrial.jpg',
     heroAlt: 'Premium modern industrial real estate development and logistics campus',
-    overview: 'Modern industrial operations require strategic freight positioning, seamless multimodal connectivity, and scalable floor specifications. Our industrial advisory team assists manufacturing enterprises, 3PL providers, and institutional investors in securing Grade-A warehousing, logistics parks, and industrial corridors.',
+    overview: 'Modern industrial operations require strategic freight positioning, seamless multimodal connectivity, and scalable floor specifications. Our industrial advisory team assists manufacturing enterprises, 3PL(Third-Party Logistics) providers , and institutional investors in securing Grade-A warehousing, logistics parks, and industrial corridors.',
     pillars: [
       {
         title: 'Warehousing & Logistics Parks',
@@ -190,7 +211,7 @@ export const SERVICE_DETAILS_MAP = {
         desc: 'Structuring tailored build-to-suit agreements with developers to match specific operational engineering requirements.'
       }
     ],
-    targetAssets: ['Grade-A Logistics Parks', 'Cold-Storage Hubs', 'Manufacturing Plants', 'Industrial Corridors'],
+    targetAssets: ['Grade-A Logistics Parks', 'Cold-Storage Hubs', 'Manufacturing Plants', 'Industrial Corridors', 'Industrial Plots', 'Industrial buildings'],
     advisoryProcess: [
       { step: '01', title: 'Operational Brief', desc: 'Analyzing floor-load capacity, ceiling clearances, power load, and logistical routes.' },
       { step: '02', title: 'Corridor Screening', desc: 'Identifying compliant industrial zones with optimal arterial connectivity.' },
@@ -199,41 +220,117 @@ export const SERVICE_DETAILS_MAP = {
     ]
   },
 
-  'exchange-land-plots': {
+  'exchange-property': {
     id: '06',
-    number: '06 / 06',
-    title: 'Exchange Land & Plots',
-    shortTitle: 'Exchange Land & Plots',
-    slug: 'exchange-land-plots',
-    tagline: 'Explore land and plot exchange opportunities through a more considered perspective on property and potential.',
-    heroImage: '/images/services/service-land.jpg',
+    number: '06 / 08',
+    title: 'Exchange Property',
+    shortTitle: 'Exchange Property',
+    slug: 'exchange-property',
+    tagline: 'Property exchange opportunities that let you move from what you hold into what you need, without the friction of a separate sale and purchase.',
+    heroImage: '/images/services/service-exchange.jpg',
     fallbackImage: '/images/services/service-exchange.jpg',
-    heroAlt: 'Expansive strategic development land parcel and commercial property plots',
-    overview: 'Land and plots represent the ultimate bedrock of tangible wealth. Through structured exchange and acquisition advisory, we assist investors, corporate occupiers, and landowners in unlocking trapped liquidity, swapping into higher-growth corridors, and executing clear-title land transactions with fiduciary discipline.',
+    heroAlt: 'Contemporary property assets representing structured real estate exchange',
+    overview: 'An exchange lets an owner trade one property for another of matching or adjusted value — a residence for a commercial unit, a plot for a built asset, or one location for a stronger corridor. We identify credible counterparties, reconcile valuations and differential balances, and manage documentation so both sides close with clarity.',
     pillars: [
       {
-        title: 'Strategic Land Aggregation',
-        desc: 'Advisory on procuring contiguous land parcels, zoning clearances, and conversion feasibility.'
+        title: 'Like-for-Like Exchange',
+        desc: 'Swapping residential, commercial or industrial property for an equivalent asset in a preferred location or format.'
       },
       {
-        title: 'Plot & Asset Exchange',
-        desc: 'Facilitating structured cross-category swaps between plotted land banks, commercial units, and income-generating assets.'
+        title: 'Cross-Category Swaps',
+        desc: 'Moving between asset classes — plots into built units, residential into income-generating commercial, and the reverse.'
+      },
+      {
+        title: 'Valuation & Balance Settlement',
+        desc: 'Independent valuation of both properties and transparent structuring of any differential payment.'
+      },
+      {
+        title: 'Title & Documentation',
+        desc: 'Verifying both titles, encumbrances and approvals, and supervising exchange deeds and registry.'
+      }
+    ],
+    targetAssets: ['Residential Units', 'Commercial Spaces', 'Built Industrial Assets', 'Plots & Land Parcels'],
+    advisoryProcess: [
+      { step: '01', title: 'Asset Assessment', desc: 'Understanding the property you hold, its value, and what you want in return.' },
+      { step: '02', title: 'Counterparty Matching', desc: 'Identifying owners with complementary properties and exchange intent.' },
+      { step: '03', title: 'Valuation Consensus', desc: 'Harmonizing independent valuations and agreeing the differential balance.' },
+      { step: '04', title: 'Exchange Deed & Registry', desc: 'Supervising bilateral documentation and formal conveyance on both sides.' }
+    ]
+  },
+
+  'land-plots': {
+    id: '07',
+    number: '07 / 08',
+    title: 'Land & Plots',
+    shortTitle: 'Land & Plots',
+    slug: 'land-plots',
+    tagline: 'Land and plot opportunities considered through location, zoning, title and long-term potential.',
+    heroImage: '/images/services/service-land.jpg',
+    fallbackImage: '/images/services/service-land.jpg',
+    heroAlt: 'Expansive strategic development land parcel and residential plots',
+    overview: 'Land and plots represent the bedrock of tangible wealth. We assist investors, developers, corporate occupiers and landowners in buying, selling and aggregating clear-title land — from residential plots to highway-corridor parcels — with rigorous diligence on zoning, approvals and ownership.',
+    pillars: [
+      {
+        title: 'Plot Acquisition & Sale',
+        desc: 'Buying and selling residential, commercial and farm plots in approved colonies and growth corridors.'
+      },
+      {
+        title: 'Strategic Land Aggregation',
+        desc: 'Procuring contiguous land parcels, zoning clearances and change-of-land-use feasibility.'
       },
       {
         title: 'Joint Development Structuring (JDA)',
-        desc: 'Aligning landowners and tier-one developers through equitable joint ventures and revenue-sharing frameworks.'
+        desc: 'Aligning landowners and developers through equitable joint ventures and revenue-sharing frameworks.'
       },
       {
         title: 'Due Diligence & Title Clearance',
-        desc: 'Forensic title chain validation, encumbrance verification, and municipal master plan compliance.'
+        desc: 'Title chain validation, encumbrance verification and master plan compliance.'
       }
     ],
-    targetAssets: ['Highway Corridor Plots', 'Commercial Land Banks', 'Industrial Development Parcels', 'Residential Plotted Communities'],
+    targetAssets: ['Residential Plots', 'Highway Corridor Land', 'Commercial Land Banks', 'Agricultural & Farm Land'],
     advisoryProcess: [
-      { step: '01', title: 'Asset & Zoning Analysis', desc: 'Verifying FSI limits, land classification, arterial access, and clear ownership records.' },
-      { step: '02', title: 'Exchange Strategy', desc: 'Identifying matching institutional buyers or exchange counterparties.' },
-      { step: '03', title: 'Valuation Consensus', desc: 'Harmonizing independent market valuations and differential capital balances.' },
-      { step: '04', title: 'Conveyance & Registry', desc: 'Supervising transparent bilateral documentation and formal conveyance deeds.' }
+      { step: '01', title: 'Requirement & Zoning Brief', desc: 'Defining size, location, land use and budget for the parcel.' },
+      { step: '02', title: 'Site Screening', desc: 'Shortlisting verified plots with access, approvals and clear ownership.' },
+      { step: '03', title: 'Diligence & Valuation', desc: 'Auditing title records and benchmarking prices against the micro-market.' },
+      { step: '04', title: 'Conveyance & Registry', desc: 'Supervising sale deeds, mutation and registry through to possession.' }
+    ]
+  },
+
+  'sick-property': {
+    id: '08',
+    number: '08 / 08',
+    title: 'Sick Property',
+    shortTitle: 'Sick Property',
+    slug: 'sick-property',
+    tagline: 'Distressed and underperforming properties approached with a clear view of what is holding them back and what they can become.',
+    heroImage: '/images/services/service-sick-property.jpg',
+    fallbackImage: '/images/services/service-sick-property.jpg',
+    heroAlt: 'Underutilised commercial property with potential for revival',
+    overview: 'Sick properties — stalled projects, closed units, bank-auctioned or legally entangled assets, and buildings that no longer earn their keep — often hold real value behind their problems. We help owners find a way out and help investors find a way in, by diagnosing the issue, resolving what can be resolved, and positioning the asset for sale, lease or revival.',
+    pillars: [
+      {
+        title: 'Distressed Asset Sale',
+        desc: 'Discreetly marketing stressed and non-performing properties to buyers equipped to take them on.'
+      },
+      {
+        title: 'Bank Auction & NPA Properties',
+        desc: 'Guiding investors through auctioned and NPA assets, from reserve-price analysis to possession.'
+      },
+      {
+        title: 'Revival & Repositioning',
+        desc: 'Assessing alternate use, re-leasing or redevelopment to restore income and value.'
+      },
+      {
+        title: 'Legal & Encumbrance Resolution',
+        desc: 'Identifying liens, disputes and pending dues, and coordinating their resolution before a deal.'
+      }
+    ],
+    targetAssets: ['Closed Industrial Units', 'Stalled Projects', 'Bank-Auctioned Assets', 'Underperforming Commercial Buildings'],
+    advisoryProcess: [
+      { step: '01', title: 'Distress Diagnosis', desc: 'Understanding the financial, legal and physical issues affecting the property.' },
+      { step: '02', title: 'Resolution Path', desc: 'Choosing between sale, lease, repositioning or settlement of liabilities.' },
+      { step: '03', title: 'Buyer & Investor Matching', desc: 'Connecting the asset with buyers who have the appetite for its risk.' },
+      { step: '04', title: 'Closure & Handover', desc: 'Managing clearances, documentation and transfer to a clean conclusion.' }
     ]
   }
 };
@@ -244,6 +341,4 @@ SERVICE_DETAILS_MAP['residential'] = SERVICE_DETAILS_MAP['residential-property']
 SERVICE_DETAILS_MAP['residentials'] = SERVICE_DETAILS_MAP['residential-property'];
 SERVICE_DETAILS_MAP['commercial'] = SERVICE_DETAILS_MAP['commercial-property'];
 SERVICE_DETAILS_MAP['industrial'] = SERVICE_DETAILS_MAP['industrial-property'];
-SERVICE_DETAILS_MAP['land-plots'] = SERVICE_DETAILS_MAP['exchange-land-plots'];
-SERVICE_DETAILS_MAP['exchange-property'] = SERVICE_DETAILS_MAP['exchange-land-plots'];
-SERVICE_DETAILS_MAP['sick-property'] = SERVICE_DETAILS_MAP['commercial-property'];
+SERVICE_DETAILS_MAP['exchange-land-plots'] = SERVICE_DETAILS_MAP['exchange-property'];

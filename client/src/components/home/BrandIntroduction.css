@@ -137,6 +137,126 @@
   object-position: center;
 }
 
+/* --- Brand film (YouTube, admin-controlled) ------------------------------ */
+.brand-intro-image-frame {
+  container-type: size; /* lets the film size itself to "cover" the frame */
+  background: #111412;
+}
+
+.brand-film {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none; /* no hover → YouTube never shows its title bar or controls */
+  opacity: 0;
+  transition: opacity 1.2s ease 0.4s;
+}
+
+.brand-film.is-playing { opacity: 1; }
+
+/* 16:9 film scaled to cover any frame shape, plus 20% to crop YouTube's corner chrome */
+.brand-film iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, 177.78cqh);
+  height: max(100cqh, 56.25cqw);
+  transform: translate(-50%, -50%) scale(1.2);
+  border: 0;
+}
+
+.brand-film-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  background: linear-gradient(180deg, rgba(17, 20, 18, 0) 35%, rgba(17, 20, 18, 0.75) 100%);
+  color: #F6F4EF;
+  pointer-events: none;
+}
+
+.brand-film-eyebrow {
+  font-family: var(--font-family-sans, "Manrope", sans-serif);
+  font-size: clamp(0.62rem, 1.2vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brand-accent-gold, #A68C65);
+}
+
+.brand-film-title {
+  margin: 0.6rem 0 0;
+  max-width: 18ch;
+  font-family: var(--font-family-serif, "Cormorant Garamond", Georgia, serif);
+  font-size: clamp(1.9rem, 5vw, 4.2rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+
+.brand-film-rule {
+  display: block;
+  width: 0;
+  height: 1px;
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+  background: linear-gradient(90deg, var(--brand-accent-gold, #A68C65), transparent);
+  animation: brandFilmRule 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+}
+
+@keyframes brandFilmRule { to { width: clamp(80px, 14vw, 180px); } }
+
+/* Sound toggle — glass pill, bottom-right of the film */
+.brand-film-sound {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid rgba(246, 244, 239, 0.35);
+  border-radius: 999px;
+  background: rgba(17, 20, 18, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #F6F4EF;
+  font-family: var(--font-family-sans, "Manrope", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  animation: brandFilmFadeIn 0.8s ease 0.6s both;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.brand-film-sound:hover,
+.brand-film-sound[aria-pressed="true"] {
+  background: rgba(166, 140, 101, 0.85);
+  border-color: var(--brand-accent-gold, #A68C65);
+}
+
+.brand-film-sound:focus-visible {
+  outline: 2px solid var(--brand-accent-gold, #A68C65);
+  outline-offset: 3px;
+}
+
+@keyframes brandFilmFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Phones: icon only */
+@media (max-width: 600px) {
+  .brand-film-sound { padding: 0.6rem; }
+  .brand-film-sound span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-film-rule { animation: none; width: clamp(80px, 14vw, 180px); }
+}
+
 /* Lower Signature Brand-Name Write-On Animation */
 .brand-intro-signature-zone {
   position: relative;
@@ -173,7 +293,7 @@
   letter-spacing: 0.04em;
   line-height: 1;
   white-space: nowrap;
-  color: var(--brand-primary, #171B19);
+  color: var(--brand-accent-gold, #A68C65);
   pointer-events: none;
   will-change: clip-path;
 }

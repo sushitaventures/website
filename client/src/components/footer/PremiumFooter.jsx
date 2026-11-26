@@ -15,7 +15,9 @@ const FOOTER_EXPERTISE_LINKS = [
   { title: "Residential Property", slug: "residential-property" },
   { title: "Commercial Property", slug: "commercial-property" },
   { title: "Industrial Property", slug: "industrial-property" },
-  { title: "Exchange Land & Plots", slug: "exchange-land-plots" },
+  { title: "Exchange Property", slug: "exchange-property" },
+  { title: "Land & Plots", slug: "land-plots" },
+  { title: "Sick Property", slug: "sick-property" },
 ];
 
 export const PremiumFooter = () => {
@@ -256,7 +258,7 @@ export const PremiumFooter = () => {
               </li>
               <li>
                 <span className="ft-label">Headquarters</span>
-                <span>55-56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603</span>
+                <span>55-56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab 140603</span>
               </li>
             </ul>
           </div>

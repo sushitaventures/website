@@ -17,6 +17,8 @@ export const env = {
   PORT: Number.parseInt(process.env.PORT, 10) || 5000,
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   MONGODB_URI: process.env.MONGODB_URI || '',
+  // Public site origin — used for links and the logo in outgoing emails
+  SITE_URL: (process.env.SITE_URL || 'https://sushitaventures.com').replace(/\/$/, ''),
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 
   // Outgoing mail (Nodemailer SMTP). Mail is skipped — and leads are marked

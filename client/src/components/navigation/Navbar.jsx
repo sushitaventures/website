@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '../common/ThemeToggle.jsx';
-import { smoothScrollTo } from '../../utils/gsapHelpers.js';
 import './Navbar.css';
 import { MobileActionBar } from './MobileActionBar.jsx';
 
 export const SERVICES_LIST = [
   { num: '01', title: 'Hotel & Resorts', slug: 'hotel-resorts', desc: 'Hospitality & destination resort assets' },
-  { num: '02', title: 'Leasing', slug: 'leasing', desc: 'Commercial & corporate lease advisory' },
+  { num: '02', title: 'Leasing', slug: 'leasing', desc: 'Hospitality, commercial & retail leasing' },
   { num: '03', title: 'Residential Property', slug: 'residential-property', desc: 'Considered residential acquisitions' },
   { num: '04', title: 'Commercial Property', slug: 'commercial-property', desc: 'Strategic corporate & retail real estate' },
   { num: '05', title: 'Industrial Property', slug: 'industrial-property', desc: 'Logistics, warehousing & industrial hubs' },
-  { num: '06', title: 'Exchange Land & Plots', slug: 'exchange-land-plots', desc: 'Land exchange & strategic parcel potential' }
+  { num: '06', title: 'Exchange Property', slug: 'exchange-property', desc: 'Structured property-for-property swaps' },
+  { num: '07', title: 'Land & Plots', slug: 'land-plots', desc: 'Clear-title land & plot transactions' },
+  { num: '08', title: 'Sick Property', slug: 'sick-property', desc: 'Distressed & underperforming assets' }
 ];
 
 // Is the page behind the navbar light or dark? Samples the element under the bar,
@@ -119,14 +120,6 @@ export const Navbar = () => {
     }, 140);
   };
 
-  const handleServicesClick = (e) => {
-    if (isHome) {
-      e.preventDefault();
-      smoothScrollTo('#services-section', -75, 1.2);
-      setMegaMenuOpen(false);
-      setMobileMenuOpen(false);
-    }
-  };
 
   return (
     <>
@@ -181,10 +174,11 @@ export const Navbar = () => {
               onMouseEnter={handleMouseEnterMenu}
               onMouseLeave={handleMouseLeaveMenu}
             >
-              <Link
-                to="/#services-section"
+              {/* No standalone Services page: clicking only opens the dropdown */}
+              <button
+                type="button"
                 className={`navbar-nav-link services-nav-link ${isServices || megaMenuOpen ? 'active' : ''}`}
-                onClick={handleServicesClick}
+                onClick={handleMouseEnterMenu}
                 aria-expanded={megaMenuOpen}
                 aria-haspopup="true"
               >
@@ -201,7 +195,7 @@ export const Navbar = () => {
                 >
                   <path d="M1 1L5 5L9 1" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </Link>
+              </button>
             </li>
 
             <li className="navbar-nav-item">

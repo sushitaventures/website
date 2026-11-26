@@ -92,7 +92,7 @@ const bodyFor = (seo) => {
   if (seo.service) {
     const s = seo.service;
     parts.push(
-      `<h2>Target asset classes</h2><ul>${s.targetAssets.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>`,
+      `<h2>Target asset classes</h2><ul>${s.targetAssets.map((a) => `<li>${esc(a.name ?? a)}</li>`).join('')}</ul>`,
       `<h2>How we support your requirements</h2>${s.pillars
         .map((p) => `<h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p>`)
         .join('')}`,

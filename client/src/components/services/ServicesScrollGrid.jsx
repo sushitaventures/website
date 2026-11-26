@@ -15,24 +15,24 @@ const SERVICES = [
     img: "service-hotel-resorts",
     area: "center",
   },
-  { title: "Leasing", slug: "leasing", img: "service-leasing", area: "tl" },
+  { title: "Leasing", slug: "leasing", img: "service-leasing", area: "br" },
   {
     title: "Residential Property",
     slug: "residential-property",
     img: "service-residential",
-    area: "bl",
+    area: "tl",
   },
   {
     title: "Commercial Property",
     slug: "commercial-property",
     img: "service-commercial",
-    area: "tr",
+    area: "bl",
   },
   {
     title: "Industrial Property",
     slug: "industrial-property",
     img: "service-industrial",
-    area: "br",
+    area: "tr",
   },
 ];
 
@@ -51,13 +51,21 @@ export const ServicesScrollGrid = () => {
           const section = rootRef.current;
           const center = section.querySelector(".ssg-card--center");
 
+          // Pin locks the section at the top; the animation starts earlier — as soon as the
+          // main image's top edge reaches the middle of the screen — and ends with the pin.
+          const pin = ScrollTrigger.create({
+            trigger: section,
+            start: "top top",
+            end: "+=150%",
+            pin: true,
+          });
+
           gsap
             .timeline({
               scrollTrigger: {
                 trigger: section,
-                start: "top top",
-                end: "+=150%",
-                pin: true,
+                start: "top center",
+                end: () => pin.end,
                 scrub: 1,
                 invalidateOnRefresh: true,
               },
@@ -65,8 +73,12 @@ export const ServicesScrollGrid = () => {
             // Main image starts covering the whole viewport (centred on it), then settles into its grid cell.
             // offsetLeft/Top ignore transforms, so these stay correct on refresh.
             .from(center, {
-              x: () => section.clientWidth / 2 - (center.offsetLeft + center.offsetWidth / 2),
-              y: () => section.clientHeight / 2 - (center.offsetTop + center.offsetHeight / 2),
+              x: () =>
+                section.clientWidth / 2 -
+                (center.offsetLeft + center.offsetWidth / 2),
+              y: () =>
+                section.clientHeight / 2 -
+                (center.offsetTop + center.offsetHeight / 2),
               scale: () =>
                 1.02 *
                 Math.max(
@@ -100,7 +112,8 @@ export const ServicesScrollGrid = () => {
       <header className="ssg-header">
         <h2 className="ssg-heading">Our Areas of Expertise</h2>
         <p className="ssg-sub">
-          Hospitality, leasing, residential, commercial and industrial property — one considered perspective.
+          Hospitality, Leasing, Residential, Commercial, Industrial and Land
+          Parcel, — one considered perspective.
         </p>
       </header>
 
@@ -112,21 +125,25 @@ export const ServicesScrollGrid = () => {
             className={`ssg-card ssg-card--${s.area === "center" ? "center" : "side"} ssg-${s.area}`}
           >
             {afterLoad && (
-            <picture>
-              <source
-                srcSet={`/images/home/${s.img}-640.webp 640w, /images/home/${s.img}.webp 896w`}
-                // The centre card starts full-screen in the scroll animation, so it needs the large file
-                sizes={s.area === "center" ? "100vw" : "(max-width: 900px) 82vw, 30vw"}
-                type="image/webp"
-              />
-              <img
-                src={`/images/home/${s.img}.jpg`}
-                alt="" /* the card heading names the service */
-                className="ssg-img"
-                loading="lazy"
-                decoding="async"
-              />
-            </picture>
+              <picture>
+                <source
+                  srcSet={`/images/home/${s.img}-640.webp 640w, /images/home/${s.img}.webp 896w`}
+                  // The centre card starts full-screen in the scroll animation, so it needs the large file
+                  sizes={
+                    s.area === "center"
+                      ? "100vw"
+                      : "(max-width: 900px) 82vw, 30vw"
+                  }
+                  type="image/webp"
+                />
+                <img
+                  src={`/images/home/${s.img}.jpg`}
+                  alt="" /* the card heading names the service */
+                  className="ssg-img"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
             )}
             <h3 className="ssg-title">{s.title}</h3>
           </Link>

@@ -1,6 +1,6 @@
 import { Enquiry } from '../../models/Enquiry.js';
 import { sendSuccess, sendError } from '../../utils/response.js';
-import { sendEnquiryNotification } from '../../services/mail.service.js';
+import { sendEnquiryNotification, sendEnquiryThankYou } from '../../services/mail.service.js';
 
 const VALID_CATEGORIES = [
   'Residential Property',
@@ -56,13 +56,12 @@ export const submitEnquiry = async (req, res) => {
       });
     }
 
-    // Phone format check (accepts domestic and international digits, +, -, spaces, parentheses, min 7 digits)
-    const cleanPhone = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
-    if (cleanPhone.length < 7 || cleanPhone.length > 20) {
+    // Phone: digits only, 7–15 long (the form strips everything else as it's typed)
+    if (typeof phoneNumber !== 'string' || !/^\d{7,15}$/.test(phoneNumber.trim())) {
       return sendError(res, {
         statusCode: 400,
         code: 'VALIDATION_ERROR',
-        message: 'Please provide a valid phone number.'
+        message: 'Please provide a valid phone number (digits only).'
       });
     }
 
@@ -88,6 +87,23 @@ export const submitEnquiry = async (req, res) => {
     // If database connection is active, persist in MongoDB
     let savedEnquiry = null;
     if (Enquiry.db && Enquiry.db.readyState === 1) {
+      // Duplicate guard: same email or phone, same category, within 24 hours → don't save or
+      // email again; just reassure the visitor. A different category counts as a new lead.
+      const duplicate = await Enquiry.findOne({
+        lookingFor,
+        $or: [{ email: email.trim().toLowerCase() }, { phoneNumber: phoneNumber.trim() }],
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      })
+        .select('_id createdAt')
+        .lean();
+      if (duplicate) {
+        return sendSuccess(res, {
+          statusCode: 200,
+          message: "We've already received your enquiry and our team will connect with you shortly. There's no need to submit it again.",
+          data: { enquiryId: duplicate._id, receivedAt: duplicate.createdAt, duplicate: true }
+        });
+      }
+
       savedEnquiry = await Enquiry.create({
         fullName: fullName.trim(),
         phoneNumber: phoneNumber.trim(),
@@ -120,6 +136,9 @@ export const submitEnquiry = async (req, res) => {
     };
     sendEnquiryNotification(leadForMail).catch((err) =>
       console.error('[PublicEnquiry] Unexpected mail error:', err.message)
+    );
+    sendEnquiryThankYou(leadForMail).catch((err) =>
+      console.error('[PublicEnquiry] Unexpected thank-you mail error:', err.message)
     );
 
     return sendSuccess(res, {

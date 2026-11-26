@@ -7,6 +7,7 @@
   --brand-ivory: #E8E1D5;
   --brand-offwhite: #F6F4EF;
   --brand-accent-gold: #A68C65; /* Muted antique gold */
+  --brand-accent-light: #BFA67E; /* Hover gold — was light-theme only, so dark-mode hovers went transparent */
   --brand-stone: #777A70;
   --brand-white: #FFFFFF;
   

@@ -131,12 +131,26 @@ const ServiceContent = ({ service, slug }) => {
             <Reveal as="p" className="sd-lead">{service.overview}</Reveal>
             <h3 className="sd-h3">Target Asset Classes</h3>
             <Reveal as="ul" className="sd-assets" variants={staggerContainer(0.1, 0.1)}>
-              {service.targetAssets.map((asset) => (
-                <motion.li key={asset} variants={staggerItem}>
-                  <motion.span className="sd-line" variants={lineDraw} />
-                  {asset}
-                </motion.li>
-              ))}
+              {service.targetAssets.map((asset) => {
+                // Plain string, or { name, img } when the category has a photo
+                const { name, img } = typeof asset === 'string' ? { name: asset } : asset;
+                return (
+                  <motion.li key={name} variants={staggerItem} className={img ? 'has-img' : undefined}>
+                    <motion.span className="sd-line" variants={lineDraw} />
+                    {img && (
+                      <img
+                        src={img}
+                        alt=""
+                        className="sd-asset-img"
+                        loading="lazy"
+                        // Photo not uploaded yet: fall back to the text-only row
+                        onError={(e) => { e.currentTarget.parentElement.classList.remove('has-img'); e.currentTarget.remove(); }}
+                      />
+                    )}
+                    {name}
+                  </motion.li>
+                );
+              })}
             </Reveal>
           </div>
         </div>

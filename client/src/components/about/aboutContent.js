@@ -114,7 +114,9 @@ export const EXPERTISE_TILES = [
   { title: 'Residential Property', slug: 'residential-property' },
   { title: 'Commercial Property', slug: 'commercial-property' },
   { title: 'Industrial Property', slug: 'industrial-property' },
-  { title: 'Exchange Land & Plots', slug: 'exchange-land-plots' }
+  { title: 'Exchange Property', slug: 'exchange-property' },
+  { title: 'Land & Plots', slug: 'land-plots' },
+  { title: 'Sick Property', slug: 'sick-property' }
 ];
 
 // Founders 03 & 04: placeholders until final content is ready. Same shape as FOUNDERS_DATA.

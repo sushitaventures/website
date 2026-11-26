@@ -21,7 +21,7 @@
    -------------------------------------------------------------------------- */
 .navbar-transparent {
   background-color: transparent;
-  height: 94px;
+  height: 104px;
   border-bottom: 1px solid transparent;
 }
 
@@ -30,7 +30,7 @@
    Text colours come from the per-theme .navbar-scrolled rules further down.
    -------------------------------------------------------------------------- */
 .navbar-scrolled {
-  height: 78px;
+  height: 92px;
   background-color: transparent;
   border-bottom: 1px solid transparent;
 }
@@ -59,8 +59,9 @@
 
 .navbar-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0;
   text-decoration: none;
   transition: opacity 0.25s ease;
 }
@@ -89,15 +90,21 @@
   object-fit: contain;
 }
 
+.navbar-brand .navbar-logo-frame {
+  width: 52px;
+  height: 52px;
+}
+
 .navbar-brand-lockup {
   display: flex;
   flex-direction: column;
+  align-items: center;
   line-height: 1;
 }
 
 .navbar-brand-title {
   font-family: var(--font-family-serif, "Cormorant Garamond", Georgia, serif);
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   transition: color 0.35s ease;
@@ -105,10 +112,9 @@
 
 .navbar-brand-subtitle {
   font-family: var(--font-family-sans, "Manrope", sans-serif);
-  font-size: 0.64rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
   margin-top: 2px;
   color: var(--brand-accent-gold, #A68C65);
 }
@@ -156,8 +162,8 @@
 
 .navbar-nav-link {
   font-family: var(--font-family-sans, "Manrope", sans-serif);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-decoration: none;
   background: none;
@@ -821,6 +827,9 @@
 /* On dark sections */
 .navbar-root.navbar-tone-dark .navbar-brand-title,
 .navbar-root.navbar-tone-dark .navbar-mobile-toggle-btn { color: #F6F4EF; }
+
+.navbar-root.navbar-tone-dark .navbar-brand-subtitle { color: #FFFFFF; }
+.navbar-root.navbar-tone-light .navbar-brand-subtitle { color: #171B19; }
 
 .navbar-root.navbar-tone-dark .navbar-nav-link { color: rgba(246, 244, 239, 0.88); }
 

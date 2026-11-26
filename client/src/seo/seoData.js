@@ -16,7 +16,7 @@ export const SITE = {
   locale: 'en_IN',
   address: {
     streetAddress: '55-56, 3rd Floor, Sushma Infinium',
-    addressLocality: 'Zirakpur',
+    addressLocality: 'Zirakpur, SAS Nagar',
     addressRegion: 'Punjab',
     postalCode: '140603',
     addressCountry: 'IN'
@@ -31,7 +31,7 @@ export const SERVICES = [...new Map(Object.values(SERVICE_DETAILS_MAP).map((s) =
 export const HOME_FAQS = [
   {
     q: 'What does Sushita Ventures do?',
-    a: 'Sushita Ventures is a real estate consultancy that helps clients find, evaluate, lease, buy, sell and exchange property across hospitality, leasing, residential, commercial, industrial and land segments.'
+    a: 'Sushita Ventures is a real estate consultancy that helps clients find, evaluate, lease, buy, sell and exchange property across hospitality, leasing, residential, commercial, industrial, land and distressed (sick) property segments.'
   },
   {
     q: 'Which real estate services does Sushita Ventures offer?',
@@ -39,7 +39,7 @@ export const HOME_FAQS = [
   },
   {
     q: 'Where is Sushita Ventures located?',
-    a: 'The Sushita Ventures office is at 55-56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603, India.'
+    a: 'The Sushita Ventures office is at 55-56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab 140603, India.'
   },
   {
     q: 'How do I contact Sushita Ventures about a property requirement?',
@@ -54,7 +54,7 @@ export const HOME_FAQS = [
 /** Question/answer pairs for a service page — derived only from that service's published content. */
 export const serviceFaqs = (s) => [
   { q: `What is Sushita Ventures' ${s.title} service?`, a: `${s.tagline} ${s.overview}` },
-  { q: `Which property types does the ${s.title} service cover?`, a: `It covers ${s.targetAssets.join(', ')}.` },
+  { q: `Which property types does the ${s.title} service cover?`, a: `It covers ${s.targetAssets.map((a) => a.name ?? a).join(', ')}.` },
   {
     q: `How does the ${s.title} process work?`,
     a: s.advisoryProcess.map((p) => `${p.step}. ${p.title}: ${p.desc}`).join(' ')
@@ -132,14 +132,14 @@ export const getRouteSeo = (path, siteUrl = SITE.defaultUrl) => {
       path,
       title: 'Sushita Ventures | Real Estate Consultancy in Zirakpur, Punjab',
       description:
-        'Sushita Ventures is a real estate consultancy in Zirakpur, Punjab for hotels & resorts, leasing, residential, commercial and industrial property, and land & plot exchange.',
+        'Sushita Ventures is a real estate consultancy in Zirakpur, Punjab for hotels & resorts, leasing, residential, commercial property,  industrial property, property exchange, land & plots and sick property.',
       h1: 'Where Trust Builds Wealth',
       lcpImage: '/images/home/hero-hotel-resorts.webp',
       // must mirror the hero <source srcSet/sizes> so the preload is reused, not doubled
       lcpSrcset: '/images/home/hero-hotel-resorts-640.webp 640w, /images/home/hero-hotel-resorts.webp 1376w',
       summary: [
         'Sushita Ventures is a real estate consultancy that recognises potential, understands aspirations and identifies opportunities that create lasting value.',
-        'Across hospitality, leasing, residential, commercial and industrial property, we approach every opportunity with a broader perspective.'
+        'Across hospitality, leasing, residential, commercial property,   industrial property, we approach every opportunity with a broader perspective.'
       ],
       faqs: HOME_FAQS,
       jsonLd: graph(page({ name: SITE.name }), faqLd(HOME_FAQS))
@@ -171,11 +171,11 @@ export const getRouteSeo = (path, siteUrl = SITE.defaultUrl) => {
       path,
       title: 'Contact Sushita Ventures | Real Estate Enquiries, Zirakpur',
       description:
-        'Contact Sushita Ventures for property enquiries — visit 55-56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603, email contact@sushitaventures.com, or send the enquiry form.',
+        'Contact Sushita Ventures for property enquiries — visit 55-56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab 140603, email contact@sushitaventures.com, or send the enquiry form.',
       h1: "Let's Connect",
       summary: [
         'Every great property decision begins with the right conversation. Tell us what you are looking for and the Sushita Ventures team will connect with you.',
-        'Office: 55-56, 3rd Floor, Sushma Infinium, Zirakpur, Punjab 140603, India. Email: contact@sushitaventures.com.'
+        'Office: 55-56, 3rd Floor, Sushma Infinium, Zirakpur, SAS Nagar, Punjab 140603, India. Email: contact@sushitaventures.com.'
       ],
       jsonLd: graph(
         page({ '@type': 'ContactPage', name: 'Contact Sushita Ventures' }),

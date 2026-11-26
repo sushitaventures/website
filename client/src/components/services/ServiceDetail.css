@@ -135,6 +135,16 @@
   font-size: 1.1rem;
 }
 
+/* Category photo above the label */
+.sd-asset-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
 /* Gold rule drawn in by framer-motion */
 .sd-line {
   position: absolute;

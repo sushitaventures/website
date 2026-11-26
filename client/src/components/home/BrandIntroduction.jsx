@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "../common/SplitText.jsx";
+import { BrandFilm } from "./BrandFilm.jsx";
 import "./BrandIntroduction.css";
 
 if (typeof window !== "undefined") {
@@ -136,10 +137,14 @@ export const BrandIntroduction = () => {
               that create lasting value.
             </p>
             <p className="brand-intro-body">
-              Across hospitality, leasing, residential, commercial and
-              industrial property, we approach every opportunity with a broader
-              perspective — combining business understanding, thoughtful
-              decisions and a clear vision for what is possible.
+              Across{" "}
+              <b>
+                Hospitality, Leasing, Residential, Commercial, Industrial and
+                Land Parcel,
+              </b>{" "}
+              we approach every opportunity with a broader perspective —
+              combining business understanding, thoughtful decisions and a clear
+              vision for what is possible.
             </p>
 
             <Link to="/about" className="brand-intro-cta-link">
@@ -174,6 +179,8 @@ export const BrandIntroduction = () => {
                 loading="lazy"
               />
             </picture>
+            {/* Admin-controlled film plays over the photo, which stays as its poster */}
+            <BrandFilm />
           </div>
         </div>
 

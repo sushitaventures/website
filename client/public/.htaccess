@@ -1,0 +1,11 @@
+# Single-page app fallback (Apache / LiteSpeed hosting).
+# Real files and folders (assets, images, the pre-rendered pages) are served as-is;
+# any other URL gets index.html, where the app redirects unknown routes to the homepage.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
