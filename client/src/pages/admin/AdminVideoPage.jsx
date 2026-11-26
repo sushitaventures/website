@@ -1,281 +1,142 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../../services/apiClient.js';
-import { Badge } from '../../components/Badge.jsx';
+import { PageHead, Switch, Chip, useToast } from '../../components/admin/AdminUI.jsx';
+
+const DEFAULT_TITLE = 'Spaces Shaped by Vision';
+
+const videoIdFrom = (url) => {
+  try {
+    const u = new URL(url.trim());
+    const id = u.hostname.includes('youtu.be')
+      ? u.pathname.slice(1)
+      : u.searchParams.get('v') || u.pathname.split(/\/(?:embed|shorts|live)\//)[1];
+    return id && /^[\w-]{11}$/.test(id.slice(0, 11)) ? id.slice(0, 11) : null;
+  } catch {
+    return null;
+  }
+};
 
 export const AdminVideoPage = () => {
-  const [config, setConfig] = useState(null);
+  const [toast, toastNode] = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [notification, setNotification] = useState({ type: '', message: '' });
-
-  const [formData, setFormData] = useState({
-    youtubeUrl: '',
-    title: '',
-    active: true,
-    autoplay: true,
-    muted: true,
-    loop: true
-  });
-
-  const [previewEmbedUrl, setPreviewEmbedUrl] = useState('');
-
-  const fetchConfig = async () => {
-    setLoading(true);
-    try {
-      const res = await apiClient.get('/admin/homepage/video');
-      const data = res?.data?.config;
-      if (data) {
-        setConfig(data);
-        setFormData({
-          youtubeUrl: data.youtubeUrl || '',
-          title: data.title || '',
-          active: !!data.active,
-          autoplay: !!data.autoplay,
-          muted: !!data.muted,
-          loop: !!data.loop
-        });
-        setPreviewEmbedUrl(data.embedUrl || '');
-      }
-    } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Failed to load video configuration' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [saved, setSaved] = useState(null);
+  const [form, setForm] = useState({ youtubeUrl: '', title: '', active: true });
 
   useEffect(() => {
-    fetchConfig();
-  }, []);
+    apiClient
+      .get('/admin/homepage/video')
+      .then((res) => {
+        const c = res?.data?.config;
+        if (c) {
+          setSaved(c);
+          setForm({ youtubeUrl: c.youtubeUrl || '', title: c.title || '', active: !!c.active });
+        }
+      })
+      .catch((err) => toast(err.message || 'Could not load the film settings.', 'error'))
+      .finally(() => setLoading(false));
+  }, [toast]);
 
-  const handleUrlChange = (e) => {
-    const url = e.target.value;
-    setFormData((prev) => ({ ...prev, youtubeUrl: url }));
+  const id = videoIdFrom(form.youtubeUrl);
+  const urlInvalid = form.youtubeUrl.trim() !== '' && !id;
+  const dirty = !saved
+    ? form.youtubeUrl.trim() !== ''
+    : form.youtubeUrl !== (saved.youtubeUrl || '') || form.title !== (saved.title || '') || form.active !== !!saved.active;
 
-    // Extract video ID for quick client preview
-    let id = null;
-    try {
-      const parsed = new URL(url.trim());
-      if (parsed.hostname.includes('youtu.be')) {
-        id = parsed.pathname.slice(1);
-      } else if (parsed.searchParams.has('v')) {
-        id = parsed.searchParams.get('v');
-      } else if (parsed.pathname.includes('/embed/')) {
-        id = parsed.pathname.split('/embed/')[1];
-      }
-    } catch {}
-
-    if (id && id.length === 11) {
-      setPreviewEmbedUrl(`https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`);
-    } else {
-      setPreviewEmbedUrl('');
-    }
-  };
-
-  const handleSave = async (e) => {
+  const save = async (e) => {
     e.preventDefault();
-    setNotification({ type: '', message: '' });
     setSaving(true);
-
     try {
-      const res = await apiClient.put('/admin/homepage/video', formData);
-      setNotification({ type: 'success', message: 'Homepage YouTube video configuration updated successfully.' });
-      setConfig(res.data.config);
+      // The homepage film always plays muted, on autoplay and on a loop
+      const res = await apiClient.put('/admin/homepage/video', { ...form, autoplay: true, muted: true, loop: true });
+      setSaved(res.data.config);
+      toast(form.active ? 'Saved. The film is playing on the homepage.' : 'Saved. The homepage shows the photo instead.');
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Failed to update video configuration.' });
+      toast(err.message || 'Film settings could not be saved.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div style={{ padding: '36px 40px', maxWidth: '1200px' }}>
-      <header style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.02em' }}>
-          Homepage YouTube Video Management
-        </h1>
-        <p style={{ fontSize: '0.88rem', color: '#8b92a5', marginTop: '6px' }}>
-          Configure the seamless embedded YouTube video displayed after scrolling beyond the homepage hero.
-        </p>
-      </header>
+    <div className="adm-page">
+      <PageHead
+        title="Homepage film"
+        sub="A muted, looping YouTube film plays in the brand introduction on the homepage. When it’s off or the link doesn’t work, visitors see the photo instead."
+      >
+        {saved && (saved.active ? <Chip tone="green">Playing</Chip> : <Chip>Off</Chip>)}
+      </PageHead>
 
-      {notification.message && (
-        <div
-          style={{
-            background: notification.type === 'error' ? 'rgba(244, 63, 94, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-            border: `1px solid ${notification.type === 'error' ? 'rgba(244, 63, 94, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-            borderRadius: '8px',
-            padding: '12px 16px',
-            color: notification.type === 'error' ? '#f87171' : '#34d399',
-            fontSize: '0.88rem',
-            marginBottom: '24px'
-          }}
-        >
-          {notification.message}
-        </div>
-      )}
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) minmax(320px, 1.2fr)', gap: '32px' }}>
-        {/* Form Configuration Card */}
-        <div style={{ background: '#12141c', border: '1px solid #1e2230', borderRadius: '16px', padding: '28px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: '600', color: '#f8fafc' }}>Video Settings</h2>
-            <Badge variant={formData.active ? 'success' : 'default'}>
-              {formData.active ? 'Visible on Homepage' : 'Hidden'}
-            </Badge>
+      <div className="adm-video-grid">
+        <form className="adm-panel adm-panel-pad adm-form" onSubmit={save}>
+          <div className="adm-field">
+            <label className="adm-label" htmlFor="vid-url">YouTube link</label>
+            <input
+              id="vid-url"
+              className="adm-input"
+              required
+              disabled={loading}
+              value={form.youtubeUrl}
+              onChange={(e) => setForm((f) => ({ ...f, youtubeUrl: e.target.value }))}
+              placeholder="https://www.youtube.com/watch?v=…"
+              aria-invalid={urlInvalid}
+              aria-describedby="vid-url-hint"
+            />
+            <span id="vid-url-hint" className="adm-hint" style={urlInvalid ? { color: 'var(--red)' } : undefined}>
+              {urlInvalid ? 'This doesn’t look like a YouTube video link.' : 'Paste the link from the YouTube share button.'}
+            </span>
           </div>
 
-          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                YouTube Source URL *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.youtubeUrl}
-                onChange={handleUrlChange}
-                placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/..."
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  background: '#090a0f',
-                  border: '1px solid #2d3345',
-                  borderRadius: '8px',
-                  color: '#f8fafc',
-                  fontSize: '0.88rem',
-                  fontFamily: 'var(--font-mono)'
-                }}
-              />
-              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '6px' }}>
-                Supports standard watch links, shortened youtu.be links, and embed URLs.
-              </span>
-            </div>
+          <div className="adm-field">
+            <label className="adm-label" htmlFor="vid-title">Title over the film</label>
+            <input
+              id="vid-title"
+              className="adm-input"
+              maxLength={80}
+              disabled={loading}
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              placeholder={DEFAULT_TITLE}
+            />
+            <span className="adm-hint">Leave empty to use “{DEFAULT_TITLE}”.</span>
+          </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                Video Title / Accessible Label
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g. Architectural Tour: The Sapphire Estate"
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  background: '#090a0f',
-                  border: '1px solid #2d3345',
-                  borderRadius: '8px',
-                  color: '#f8fafc',
-                  fontSize: '0.88rem'
-                }}
-              />
-            </div>
+          <Switch
+            id="vid-active"
+            checked={form.active}
+            disabled={loading}
+            onChange={(v) => setForm((f) => ({ ...f, active: v }))}
+            label="Play on homepage"
+            hint="Switch off to show the photo instead."
+          />
 
-            <div style={{ borderTop: '1px solid #1e2230', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="activeVideo"
-                  checked={formData.active}
-                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
-                <label htmlFor="activeVideo" style={{ fontSize: '0.88rem', color: '#f8fafc', cursor: 'pointer' }}>
-                  Enable video visibility on public homepage
-                </label>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="mutedVideo"
-                  checked={formData.muted}
-                  onChange={(e) => setFormData({ ...formData, muted: e.target.checked })}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
-                <label htmlFor="mutedVideo" style={{ fontSize: '0.88rem', color: '#cbd5e1', cursor: 'pointer' }}>
-                  Muted playback by default (Recommended for browser autoplay policy)
-                </label>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="autoplayVideo"
-                  checked={formData.autoplay}
-                  onChange={(e) => setFormData({ ...formData, autoplay: e.target.checked })}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
-                <label htmlFor="autoplayVideo" style={{ fontSize: '0.88rem', color: '#cbd5e1', cursor: 'pointer' }}>
-                  Autoplay inline on viewport enter
-                </label>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="loopVideo"
-                  checked={formData.loop}
-                  onChange={(e) => setFormData({ ...formData, loop: e.target.checked })}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
-                <label htmlFor="loopVideo" style={{ fontSize: '0.88rem', color: '#cbd5e1', cursor: 'pointer' }}>
-                  Continuous looping
-                </label>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                background: '#00d2ff',
-                color: '#090a0f',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                marginTop: '10px',
-                opacity: saving ? 0.7 : 1
-              }}
-            >
-              {saving ? 'Validating & Saving...' : 'Save Video Configuration'}
+          <div>
+            <button type="submit" className="adm-btn adm-btn-primary" disabled={loading || saving || urlInvalid || !dirty}>
+              {saving ? 'Saving…' : 'Save'}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
 
-        {/* Live Embed Preview Card */}
-        <div style={{ background: '#12141c', border: '1px solid #1e2230', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: '600', color: '#f8fafc', marginBottom: '16px' }}>
-            Live Privacy-Enhanced Preview
-          </h2>
-
-          {previewEmbedUrl ? (
-            <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', background: '#000', borderRadius: '10px', overflow: 'hidden', border: '1px solid #2d3345' }}>
+        <div>
+          <span className="adm-label" style={{ display: 'block', marginBottom: 8 }}>Preview</span>
+          <div className="adm-film">
+            {id ? (
               <iframe
-                src={previewEmbedUrl}
-                title={formData.title || 'YouTube video preview'}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                key={id}
+                src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0&playsinline=1`}
+                title="Film preview"
+                allow="autoplay; encrypted-media"
+                tabIndex={-1}
               />
-            </div>
-          ) : (
-            <div style={{ flex: 1, minHeight: '240px', background: '#090a0f', border: '1px dashed #2d3345', borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', padding: '20px', textAlign: 'center' }}>
-              <span style={{ fontSize: '2rem', marginBottom: '8px' }}>▶️</span>
-              <p style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>No valid YouTube URL to preview</p>
-              <p style={{ fontSize: '0.75rem', marginTop: '4px' }}>Enter a YouTube link on the left to render the embed preview.</p>
-            </div>
-          )}
-
-          <div style={{ marginTop: '20px', fontSize: '0.78rem', color: '#64748b', lineHeight: '1.6' }}>
-            <strong>Security & Privacy Protocol:</strong> The system automatically rewrites URLs to the privacy-enhanced <code>youtube-nocookie.com</code> domain with <code>rel=0</code> and <code>modestbranding=1</code> to minimize tracking cookies.
+            ) : (
+              <div className="adm-film-empty">Paste a YouTube link to preview the film.</div>
+            )}
+            {id && <div className="adm-film-title">{form.title.trim() || DEFAULT_TITLE}</div>}
           </div>
         </div>
       </div>
+
+      {toastNode}
     </div>
   );
 };

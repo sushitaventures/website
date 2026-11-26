@@ -1,413 +1,234 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../../services/apiClient.js';
-import { Badge } from '../../components/Badge.jsx';
+import { PageHead, Switch, Chip, useToast, fmtDate } from '../../components/admin/AdminUI.jsx';
+
+const EMPTY = { title: '', shortDescription: '', ctaLabel: '', ctaUrl: '', live: false, startDate: '', endDate: '' };
+
+// The website shows an offer only when it is published AND active — one switch here sets both.
+const isLive = (o) => o.active && o.status === 'published';
+
+// Dates are picked in local time: "show from" starts at 00:00, "show until" lasts to 23:59.
+const toInputDate = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const fromInputDate = (day, endOfDay) => (day ? new Date(`${day}T${endOfDay ? '23:59:59' : '00:00:00'}`).toISOString() : null);
+
+const scheduleText = (o) => {
+  const now = Date.now();
+  if (o.startDate && new Date(o.startDate) > now) return `Starts ${fmtDate(o.startDate, false)}`;
+  if (o.endDate && new Date(o.endDate) < now) return `Ended ${fmtDate(o.endDate, false)}`;
+  if (o.endDate) return `Until ${fmtDate(o.endDate, false)}`;
+  return '';
+};
 
 export const AdminOffersPage = () => {
+  const [toast, toastNode] = useToast();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState({ type: '', message: '' });
-  const [editingOffer, setEditingOffer] = useState(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null); // null = closed, {} = new, offer = edit
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const [formData, setFormData] = useState({
-    title: '',
-    shortDescription: '',
-    fullDescription: '',
-    imageUrl: '',
-    ctaLabel: '',
-    ctaUrl: '',
-    status: 'draft',
-    active: false,
-    startDate: '',
-    endDate: ''
-  });
-
-  const fetchOffers = async () => {
-    setLoading(true);
+  const load = async () => {
     try {
       const res = await apiClient.get('/admin/offers');
       setOffers(res?.data?.offers || []);
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Failed to load offers' });
+      toast(err.message || 'Could not load offers.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
-    fetchOffers();
-  }, []);
+    if (!editing) return;
+    const onKey = (e) => e.key === 'Escape' && setEditing(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [editing]);
 
-  const openCreateModal = () => {
-    setEditingOffer(null);
-    setFormData({
-      title: '',
-      shortDescription: '',
-      fullDescription: '',
-      imageUrl: '',
-      ctaLabel: '',
-      ctaUrl: '',
-      status: 'draft',
-      active: false,
-      startDate: '',
-      endDate: ''
+  const openNew = () => { setForm(EMPTY); setEditing({}); };
+  const openEdit = (o) => {
+    setForm({
+      title: o.title || '',
+      shortDescription: o.shortDescription || '',
+      ctaLabel: o.ctaLabel || '',
+      ctaUrl: o.ctaUrl || '',
+      live: isLive(o),
+      startDate: toInputDate(o.startDate),
+      endDate: toInputDate(o.endDate)
     });
-    setIsFormOpen(true);
+    setEditing(o);
   };
 
-  const openEditModal = (offer) => {
-    setEditingOffer(offer);
-    setFormData({
-      title: offer.title || '',
-      shortDescription: offer.shortDescription || '',
-      fullDescription: offer.fullDescription || '',
-      imageUrl: offer.imageUrl || '',
-      ctaLabel: offer.ctaLabel || '',
-      ctaUrl: offer.ctaUrl || '',
-      status: offer.status || 'draft',
-      active: !!offer.active,
-      startDate: offer.startDate ? offer.startDate.slice(0, 10) : '',
-      endDate: offer.endDate ? offer.endDate.slice(0, 10) : ''
-    });
-    setIsFormOpen(true);
-  };
+  const toPayload = ({ live, ...f }) => ({
+    ...f,
+    startDate: fromInputDate(f.startDate, false),
+    endDate: fromInputDate(f.endDate, true),
+    active: live,
+    status: live ? 'published' : 'draft'
+  });
 
-  const handleSave = async (e) => {
+  const save = async (e) => {
     e.preventDefault();
-    setNotification({ type: '', message: '' });
-
+    setSaving(true);
     try {
-      if (editingOffer) {
-        await apiClient.patch(`/admin/offers/${editingOffer._id}`, formData);
-        setNotification({ type: 'success', message: 'Offer updated successfully.' });
-      } else {
-        await apiClient.post('/admin/offers', formData);
-        setNotification({ type: 'success', message: 'New offer created successfully.' });
-      }
-      setIsFormOpen(false);
-      fetchOffers();
+      if (editing?._id) await apiClient.patch(`/admin/offers/${editing._id}`, toPayload(form));
+      else await apiClient.post('/admin/offers', toPayload(form));
+      toast(editing?._id ? 'Offer saved.' : 'Offer created.');
+      setEditing(null);
+      load();
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Save operation failed.' });
+      toast(err.message || 'Offer could not be saved.', 'error');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete the offer "${title}"?`)) {
-      return;
-    }
-
+  const toggleLive = async (o, on) => {
+    setOffers((list) => list.map((x) => (x._id === o._id ? { ...x, active: on, status: on ? 'published' : x.status } : x)));
     try {
-      await apiClient.delete(`/admin/offers/${id}`);
-      setNotification({ type: 'success', message: 'Offer deleted successfully.' });
-      fetchOffers();
+      await apiClient.patch(`/admin/offers/${o._id}`, on ? { active: true, status: 'published' } : { active: false });
+      toast(on ? 'Offer is now showing on the website.' : 'Offer hidden from the website.');
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Delete operation failed.' });
+      toast(err.message, 'error');
+      load();
     }
   };
 
-  const handleToggleActive = async (offer) => {
+  const remove = async (o) => {
     try {
-      await apiClient.patch(`/admin/offers/${offer._id}`, { active: !offer.active });
-      fetchOffers();
+      await apiClient.delete(`/admin/offers/${o._id}`);
+      setOffers((list) => list.filter((x) => x._id !== o._id));
+      toast('Offer deleted.');
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || 'Status toggle failed.' });
+      toast(err.message, 'error');
+    } finally {
+      setConfirmDelete(null);
     }
   };
+
+  const liveCount = offers.filter(isLive).length;
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   return (
-    <div style={{ padding: '36px 40px', maxWidth: '1200px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.02em' }}>
-            Homepage Offer Management
-          </h1>
-          <p style={{ fontSize: '0.88rem', color: '#8b92a5', marginTop: '6px' }}>
-            Create and publish promotional cards for visitors scrolling past the homepage hero.
-          </p>
-        </div>
-        <button
-          onClick={openCreateModal}
-          style={{
-            background: '#00d2ff',
-            color: '#090a0f',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '10px 18px',
-            fontSize: '0.88rem',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
-        >
-          + Create New Offer
-        </button>
-      </div>
+    <div className="adm-page">
+      <PageHead title="Offers" sub="An offer appears as a popup on the homepage. Only one is shown at a time — the most recently edited one that’s switched on.">
+        <button className="adm-btn adm-btn-primary" onClick={openNew}>New offer</button>
+      </PageHead>
 
-      {notification.message && (
-        <div
-          style={{
-            background: notification.type === 'error' ? 'rgba(244, 63, 94, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-            border: `1px solid ${notification.type === 'error' ? 'rgba(244, 63, 94, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-            borderRadius: '8px',
-            padding: '12px 16px',
-            color: notification.type === 'error' ? '#f87171' : '#34d399',
-            fontSize: '0.88rem',
-            marginBottom: '24px'
-          }}
-        >
-          {notification.message}
-        </div>
+      {liveCount > 1 && (
+        <div className="adm-alert">{liveCount} offers are switched on. Visitors only see the most recently edited one.</div>
       )}
 
-      {/* Offers Table / List */}
-      {loading ? (
-        <div style={{ color: '#8b92a5', fontFamily: 'var(--font-mono)', padding: '40px 0' }}>Loading offers...</div>
-      ) : offers.length === 0 ? (
-        <div style={{ background: '#12141c', border: '1px solid #1e2230', borderRadius: '12px', padding: '48px 24px', textAlign: 'center', color: '#8b92a5' }}>
-          <p style={{ fontSize: '1rem', fontWeight: '500', color: '#cbd5e1' }}>No promotional offers created yet.</p>
-          <p style={{ fontSize: '0.85rem', marginTop: '6px' }}>Click "+ Create New Offer" above to configure your first homepage offer.</p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {offers.map((offer) => (
-            <div
-              key={offer._id}
-              style={{
-                background: '#12141c',
-                border: '1px solid #1e2230',
-                borderRadius: '12px',
-                padding: '20px 24px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '16px'
-              }}
-            >
-              <div style={{ maxWidth: '650px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: '600', color: '#f8fafc' }}>{offer.title}</h3>
-                  <Badge variant={offer.status === 'published' ? 'success' : offer.status === 'archived' ? 'default' : 'warning'}>
-                    {offer.status}
-                  </Badge>
-                  <Badge variant={offer.active ? 'cyan' : 'default'}>
-                    {offer.active ? 'Active' : 'Inactive'}
-                  </Badge>
+      <div className="adm-panel">
+        {loading ? (
+          [0, 1].map((i) => <div key={i} className="adm-skeleton" />)
+        ) : offers.length === 0 ? (
+          <div className="adm-empty">
+            <strong>No offers yet</strong>
+            Create an offer to show a popup to homepage visitors.
+            <div><button className="adm-btn adm-btn-primary" onClick={openNew}>New offer</button></div>
+          </div>
+        ) : (
+          offers.map((o) => (
+            <div key={o._id} className="adm-offer">
+              <div style={{ minWidth: 0, flex: '1 1 320px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <h3>{o.title}</h3>
+                  {isLive(o) ? <Chip tone="green">On website</Chip> : <Chip>Hidden</Chip>}
+                  {scheduleText(o) && <span className="adm-hint">{scheduleText(o)}</span>}
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: '1.5' }}>{offer.shortDescription}</p>
-                {offer.ctaLabel && (
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontFamily: 'var(--font-mono)', marginTop: '8px', display: 'inline-block' }}>
-                    CTA: {offer.ctaLabel} → {offer.ctaUrl || '#'}
-                  </span>
+                <p>{o.shortDescription}</p>
+              </div>
+
+              <div className="adm-offer-actions">
+                <Switch id={`live-${o._id}`} checked={isLive(o)} onChange={(on) => toggleLive(o, on)} label={<span className="adm-hint">Show</span>} />
+                <button className="adm-btn adm-btn-sm" onClick={() => openEdit(o)}>Edit</button>
+                {confirmDelete === o._id ? (
+                  <>
+                    <button className="adm-btn adm-btn-sm adm-btn-danger" onClick={() => remove(o)}>Delete offer</button>
+                    <button className="adm-btn adm-btn-sm" onClick={() => setConfirmDelete(null)}>Keep</button>
+                  </>
+                ) : (
+                  <button className="adm-btn adm-btn-sm adm-btn-danger" onClick={() => setConfirmDelete(o._id)}>Delete</button>
                 )}
               </div>
+            </div>
+          ))
+        )}
+      </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  onClick={() => handleToggleActive(offer)}
-                  style={{
-                    background: offer.active ? 'rgba(244, 63, 94, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                    border: `1px solid ${offer.active ? 'rgba(244, 63, 94, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-                    color: offer.active ? '#f87171' : '#34d399',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {offer.active ? 'Deactivate' : 'Activate'}
-                </button>
-                <button
-                  onClick={() => openEditModal(offer)}
-                  style={{
-                    background: '#1e2230',
-                    border: '1px solid #2d3345',
-                    color: '#e2e8f0',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(offer._id, offer.title)}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid #2d3345',
-                    color: '#94a3b8',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Delete
-                </button>
+      {editing && (
+        <div className="adm-drawer-backdrop" onMouseDown={(e) => e.target === e.currentTarget && setEditing(null)}>
+          <form className="adm-drawer" role="dialog" aria-modal="true" aria-labelledby="offer-drawer-title" onSubmit={save}>
+            <h2 id="offer-drawer-title">{editing._id ? 'Edit offer' : 'New offer'}</h2>
+
+            <div className="adm-form">
+              <div className="adm-field">
+                <label className="adm-label" htmlFor="of-title">Headline</label>
+                <input id="of-title" className="adm-input" required maxLength={120} value={form.title} onChange={set('title')} placeholder="Festive offer on premium villas" autoFocus />
+              </div>
+
+              <div className="adm-field">
+                <label className="adm-label" htmlFor="of-desc">Message</label>
+                <textarea id="of-desc" className="adm-textarea" required maxLength={300} value={form.shortDescription} onChange={set('shortDescription')} placeholder="One or two sentences about the offer." />
+                <span className="adm-hint">{form.shortDescription.length}/300</span>
+              </div>
+
+              <div className="adm-grid-2">
+                <div className="adm-field">
+                  <label className="adm-label" htmlFor="of-cta">Button text</label>
+                  <input id="of-cta" className="adm-input" maxLength={50} value={form.ctaLabel} onChange={set('ctaLabel')} placeholder="Enquire now" />
+                </div>
+                <div className="adm-field">
+                  <label className="adm-label" htmlFor="of-url">Button link</label>
+                  <input id="of-url" className="adm-input" value={form.ctaUrl} onChange={set('ctaUrl')} placeholder="/contact" />
+                </div>
+              </div>
+
+              <div className="adm-grid-2">
+                <div className="adm-field">
+                  <label className="adm-label" htmlFor="of-start">Show from</label>
+                  <input id="of-start" type="date" className="adm-input" value={form.startDate} onChange={set('startDate')} />
+                </div>
+                <div className="adm-field">
+                  <label className="adm-label" htmlFor="of-end">Show until</label>
+                  <input id="of-end" type="date" className="adm-input" value={form.endDate} min={form.startDate || undefined} onChange={set('endDate')} />
+                </div>
+              </div>
+              <span className="adm-hint" style={{ marginTop: -10 }}>Leave the dates empty to show it until you switch it off.</span>
+
+              <Switch id="of-live" checked={form.live} onChange={(v) => setForm((f) => ({ ...f, live: v }))} label="Show on website" hint="Visitors see it as a popup on the homepage." />
+
+              <div className="adm-field">
+                <span className="adm-label">Preview</span>
+                <div className="adm-preview">
+                  <div className="adm-preview-card">
+                    <h4>{form.title || 'Your headline'}</h4>
+                    <p>{form.shortDescription || 'Your message appears here.'}</p>
+                    {form.ctaLabel && <span>{form.ctaLabel}</span>}
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
+
+            <div className="adm-drawer-foot">
+              <button type="button" className="adm-btn" onClick={() => setEditing(null)}>Cancel</button>
+              <button type="submit" className="adm-btn adm-btn-primary" disabled={saving}>
+                {saving ? 'Saving…' : editing._id ? 'Save offer' : 'Create offer'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
-      {/* Create / Edit Modal */}
-      {isFormOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 100 }}>
-          <div style={{ background: '#12141c', border: '1px solid #1e2230', borderRadius: '16px', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '32px' }}>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#ffffff', marginBottom: '20px' }}>
-              {editingOffer ? 'Edit Offer' : 'Create New Offer'}
-            </h2>
-
-            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                  Offer Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={120}
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Exclusive Waterfront Villas Launch"
-                  style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                  Short Description * (Displayed in popup card)
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  maxLength={300}
-                  value={formData.shortDescription}
-                  onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                  placeholder="Summary text highlighting the offer's unique value..."
-                  style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem', resize: 'vertical' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                  Full Description (Optional extended details)
-                </label>
-                <textarea
-                  rows={4}
-                  maxLength={2000}
-                  value={formData.fullDescription}
-                  onChange={(e) => setFormData({ ...formData, fullDescription: e.target.value })}
-                  placeholder="Full terms, specifications, or architectural notes..."
-                  style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem', resize: 'vertical' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                    CTA Label
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={50}
-                    value={formData.ctaLabel}
-                    onChange={(e) => setFormData({ ...formData, ctaLabel: e.target.value })}
-                    placeholder="e.g. Inquire Privately"
-                    style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                    CTA URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.ctaUrl}
-                    onChange={(e) => setFormData({ ...formData, ctaUrl: e.target.value })}
-                    placeholder="e.g. /contact or https://..."
-                    style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem' }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                  Supporting Image URL (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://images.example.com/property-hero.jpg"
-                  style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '500', color: '#cbd5e1', marginBottom: '6px' }}>
-                    Publication Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', background: '#090a0f', border: '1px solid #2d3345', borderRadius: '6px', color: '#f8fafc', fontSize: '0.88rem' }}
-                  >
-                    <option value="draft">Draft (Private)</option>
-                    <option value="published">Published</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '28px' }}>
-                  <input
-                    type="checkbox"
-                    id="activeToggle"
-                    checked={formData.active}
-                    onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                  />
-                  <label htmlFor="activeToggle" style={{ fontSize: '0.88rem', color: '#f8fafc', cursor: 'pointer' }}>
-                    Active (Enabled for homepage display)
-                  </label>
-                </div>
-              </div>
-
-              {/* Live Preview Panel */}
-              <div style={{ marginTop: '12px', padding: '16px', background: '#090a0f', border: '1px dashed #2d3345', borderRadius: '8px' }}>
-                <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'none', fontFamily: 'var(--font-mono)' }}>Live Card Preview</span>
-                <div style={{ marginTop: '10px', background: '#181b26', border: '1px solid #282e42', borderRadius: '10px', padding: '18px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff' }}>{formData.title || 'Offer Heading Preview'}</h4>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '6px' }}>{formData.shortDescription || 'Short description preview will appear here...'}</p>
-                  {formData.ctaLabel && (
-                    <div style={{ marginTop: '12px' }}>
-                      <span style={{ display: 'inline-block', background: '#00d2ff', color: '#000', padding: '6px 14px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600' }}>
-                        {formData.ctaLabel}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  style={{ background: 'transparent', border: '1px solid #2d3345', color: '#cbd5e1', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{ background: '#00d2ff', color: '#090a0f', border: 'none', padding: '10px 22px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  Save Offer
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {toastNode}
     </div>
   );
 };

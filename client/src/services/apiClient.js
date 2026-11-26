@@ -38,6 +38,12 @@ export const request = async (endpoint, options = {}) => {
     const isJson = contentType && contentType.includes('application/json');
     const payload = isJson ? await response.json() : await response.text();
 
+    // A 2xx that isn't JSON means we reached something other than the API (e.g. a hosting
+    // placeholder page). Treat it as a failure rather than a silent "success".
+    if (response.ok && !isJson && response.status !== 204) {
+      throw new ApiClientError('The service is temporarily unavailable. Please try again shortly.', response.status, 'UNEXPECTED_RESPONSE', null);
+    }
+
     if (!response.ok) {
       const errorMessage = payload?.error?.message || payload?.message || `Request failed with status ${response.status}`;
       const errorCode = payload?.error?.code || 'API_ERROR';

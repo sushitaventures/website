@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { connectDatabase, disconnectDatabase } from '../config/database.js';
 import { AdminUser } from '../models/AdminUser.js';
+import { AdminSession } from '../models/AdminSession.js';
 
 // Parse CLI arguments if supplied non-interactively
 const getArgs = () => {
@@ -50,10 +51,12 @@ const askQuestion = (query) => {
 };
 
 const run = async () => {
-  console.log('=== Luxury Real Estate Platform — Secure Admin Provisioning ===\n');
+  const args = getArgs();
+  console.log(args.reset
+    ? '=== Sushita Ventures — Admin Password Reset ===\n'
+    : '=== Luxury Real Estate Platform — Secure Admin Provisioning ===\n');
 
   try {
-    const args = getArgs();
     let email = args.email;
 
     // Passwords on the command line end up in shell history and process listings.
@@ -88,6 +91,22 @@ const run = async () => {
 
     const normalizedEmail = email.toLowerCase().trim();
     const existing = await AdminUser.findOne({ email: normalizedEmail });
+
+    // --reset: set a new password on an existing account and sign out all its sessions
+    if (args.reset) {
+      if (!existing) {
+        console.error(`Error: No administrator account found for "${normalizedEmail}".`);
+        await disconnectDatabase();
+        process.exit(1);
+      }
+      existing.passwordHash = await AdminUser.hashPassword(password);
+      await existing.save();
+      const { deletedCount } = await AdminSession.deleteMany({ userId: existing._id });
+      console.log(`\n✓ Password reset for: ${normalizedEmail}`);
+      console.log(`Signed out ${deletedCount} existing session(s); log in again with the new password.`);
+      await disconnectDatabase();
+      process.exit(0);
+    }
 
     if (existing) {
       console.error(`Error: An administrator account with email "${normalizedEmail}" already exists.`);

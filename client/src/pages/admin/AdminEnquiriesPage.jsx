@@ -1,72 +1,46 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient } from '../../services/apiClient.js';
-import { Badge } from '../../components/Badge.jsx';
+import { PageHead, Chip, useToast, fmtDate, timeAgo } from '../../components/admin/AdminUI.jsx';
 
-const LEAD_STATUSES = [
+const STATUSES = [
   { value: 'new', label: 'New' },
   { value: 'contacted', label: 'Contacted' },
-  { value: 'in_discussion', label: 'In Discussion' },
+  { value: 'in_discussion', label: 'In discussion' },
   { value: 'resolved', label: 'Resolved' },
   { value: 'archived', label: 'Archived' }
 ];
+const statusLabel = (v) => STATUSES.find((s) => s.value === v)?.label || v;
+const STATUS_TONE = { new: 'gold', contacted: undefined, in_discussion: 'amber', resolved: 'green', archived: undefined };
 
-const MAIL_STATUS = {
-  sent: { label: 'Mail sent', variant: 'success' },
-  pending: { label: 'Sending…', variant: 'cyan' },
-  failed: { label: 'Mail failed', variant: 'danger' },
-  not_configured: { label: 'Mail not configured', variant: 'warning' }
-};
-
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
-
-const ui = {
-  page: { padding: '32px', maxWidth: '1200px', width: '100%', boxSizing: 'border-box' },
-  card: { background: '#0d0f17', border: '1px solid #1e2230', borderRadius: '10px' },
-  input: {
-    background: '#090a0f',
-    border: '1px solid #2d3345',
-    color: '#f0f2f8',
-    borderRadius: '8px',
-    padding: '9px 12px',
-    fontSize: '0.85rem'
-  },
-  btn: {
-    background: 'transparent',
-    border: '1px solid #2d3345',
-    color: '#cbd5e1',
-    padding: '7px 12px',
-    borderRadius: '6px',
-    fontSize: '0.78rem',
-    cursor: 'pointer'
-  },
-  muted: { color: '#64748b', fontSize: '0.78rem' }
+const MAIL = {
+  sent: { label: 'Email sent', tone: 'green' },
+  failed: { label: 'Email failed', tone: 'red' },
+  not_configured: { label: 'Email off', tone: 'amber' },
+  pending: { label: 'Sending', tone: undefined }
 };
 
 export const AdminEnquiriesPage = () => {
-  const [enquiries, setEnquiries] = useState([]);
+  const [toast, toastNode] = useToast();
+  const [rows, setRows] = useState([]);
   const [summary, setSummary] = useState({ byStatus: {}, byMail: {} });
   const [mailConfigured, setMailConfigured] = useState(true);
   const [meta, setMeta] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
-  const [notice, setNotice] = useState({ type: '', message: '' });
-  const [expanded, setExpanded] = useState(null);
+  const [open, setOpen] = useState(null);
   const [busyId, setBusyId] = useState(null);
 
+  const [tab, setTab] = useState('');
   const [q, setQ] = useState('');
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [mailStatus, setMailStatus] = useState('');
+  const [failedOnly, setFailedOnly] = useState(false);
   const [page, setPage] = useState(1);
 
-  // Who receives lead emails (stored server-side; default contact@sushitaventures.com)
   const [recipients, setRecipients] = useState(null);
+  const [editingRecipients, setEditingRecipients] = useState(false);
   const [recipientsDraft, setRecipientsDraft] = useState('');
-  const [savingRecipients, setSavingRecipients] = useState(false);
 
-  // Debounce the search box
   useEffect(() => {
-    const t = setTimeout(() => { setSearch(q); setPage(1); }, 350);
+    const t = setTimeout(() => { setSearch(q.trim()); setPage(1); }, 300);
     return () => clearTimeout(t);
   }, [q]);
 
@@ -74,265 +48,234 @@ export const AdminEnquiriesPage = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: '20' });
-      if (search.trim()) params.set('q', search.trim());
-      if (status) params.set('status', status);
-      if (mailStatus) params.set('mailStatus', mailStatus);
+      if (search) params.set('q', search);
+      if (tab) params.set('status', tab);
+      if (failedOnly) params.set('mailStatus', 'failed');
       const res = await apiClient.get(`/admin/enquiries?${params}`);
-      setEnquiries(res.data.enquiries);
+      setRows(res.data.enquiries);
       setSummary(res.data.summary);
       setMailConfigured(res.data.mailConfigured);
       setMeta(res.meta);
     } catch (err) {
-      setNotice({ type: 'error', message: err.message || 'Failed to load enquiries' });
+      toast(err.message || 'Could not load enquiries.', 'error');
     } finally {
       setLoading(false);
     }
-  }, [page, search, status, mailStatus]);
+  }, [page, search, tab, failedOnly, toast]);
 
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    apiClient
-      .get('/admin/enquiries/settings/recipients')
-      .then((res) => {
-        setRecipients(res.data);
-        setRecipientsDraft(res.data.recipients.join(', '));
-      })
-      .catch((err) => setNotice({ type: 'error', message: err.message || 'Failed to load recipients' }));
+    apiClient.get('/admin/enquiries/settings/recipients').then((res) => setRecipients(res.data)).catch(() => {});
   }, []);
 
-  const saveRecipients = async (ev) => {
-    ev.preventDefault();
-    setSavingRecipients(true);
+  const replaceRow = (u) => setRows((list) => list.map((r) => (r._id === u._id ? { ...r, ...u } : r)));
+
+  const setStatus = async (row, next) => {
+    setBusyId(row._id);
+    try {
+      const res = await apiClient.patch(`/admin/enquiries/${row._id}`, { status: next });
+      replaceRow(res.data.enquiry);
+      setSummary((s) => ({
+        ...s,
+        byStatus: { ...s.byStatus, [row.status]: Math.max(0, (s.byStatus[row.status] || 1) - 1), [next]: (s.byStatus[next] || 0) + 1 }
+      }));
+      toast(`Marked as ${statusLabel(next).toLowerCase()}.`);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const resend = async (row) => {
+    setBusyId(row._id);
+    try {
+      const res = await apiClient.post(`/admin/enquiries/${row._id}/resend-email`, {});
+      replaceRow(res.data.enquiry);
+      toast('Email sent to your team.');
+    } catch (err) {
+      if (err.details?.enquiry) replaceRow(err.details.enquiry);
+      toast(err.message || 'Email could not be sent.', 'error');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const saveRecipients = async (e) => {
+    e.preventDefault();
     try {
       const res = await apiClient.put('/admin/enquiries/settings/recipients', { recipients: recipientsDraft });
       setRecipients(res.data);
-      setRecipientsDraft(res.data.recipients.join(', '));
-      setNotice({ type: 'success', message: 'Lead notification recipients saved.' });
+      setEditingRecipients(false);
+      toast('Saved. New enquiries will be emailed there.');
     } catch (err) {
-      setNotice({ type: 'error', message: err.message });
-    } finally {
-      setSavingRecipients(false);
-    }
-  };
-
-  const replaceRow = (updated) =>
-    setEnquiries((rows) => rows.map((r) => (r._id === updated._id ? { ...r, ...updated } : r)));
-
-  const changeLeadStatus = async (id, next) => {
-    setBusyId(id);
-    try {
-      const res = await apiClient.patch(`/admin/enquiries/${id}`, { status: next });
-      replaceRow(res.data.enquiry);
-      setNotice({ type: 'success', message: 'Lead status updated.' });
-    } catch (err) {
-      setNotice({ type: 'error', message: err.message });
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const resend = async (id) => {
-    setBusyId(id);
-    try {
-      const res = await apiClient.post(`/admin/enquiries/${id}/resend-email`, {});
-      replaceRow(res.data.enquiry);
-      setNotice({ type: 'success', message: 'Notification email sent.' });
-    } catch (err) {
-      if (err.details?.enquiry) replaceRow(err.details.enquiry);
-      setNotice({ type: 'error', message: err.message });
-    } finally {
-      setBusyId(null);
+      toast(err.message, 'error');
     }
   };
 
   const total = Object.values(summary.byStatus).reduce((a, b) => a + b, 0);
-  const mailProblems = (summary.byMail.failed || 0) + (summary.byMail.not_configured || 0);
-  const cards = [
-    { label: 'Total leads', value: total },
-    { label: 'New', value: summary.byStatus.new || 0, color: '#00d2ff' },
-    { label: 'Emails sent', value: summary.byMail.sent || 0, color: '#10b981' },
-    { label: 'Emails not delivered', value: mailProblems, color: mailProblems ? '#f43f5e' : undefined }
-  ];
+  const failed = summary.byMail.failed || 0;
 
   return (
-    <div style={ui.page}>
-      <header style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 6px' }}>Leads &amp; Enquiries</h1>
-        <p style={ui.muted}>Contact-form submissions and the delivery status of each notification email.</p>
-      </header>
+    <div className="adm-page">
+      <PageHead title="Enquiries" sub="Everyone who has filled in the contact form. Open an enquiry to see their requirement and update its progress." />
 
       {!mailConfigured && (
-        <div style={{ ...ui.card, borderColor: 'rgba(245, 158, 11, 0.35)', background: 'rgba(245, 158, 11, 0.08)', padding: '12px 16px', marginBottom: '20px', color: '#fbbf24', fontSize: '0.85rem' }}>
-          Email is not configured on the server. Leads are still saved here, but no notification emails go out until
-          SMTP_HOST, SMTP_USER and SMTP_PASS are set in <code>server/.env</code>.
+        <div className="adm-alert">
+          Email isn’t set up on the server, so enquiries are saved here but your team isn’t emailed about them.
         </div>
       )}
 
-      {notice.message && (
-        <div
-          role="status"
-          style={{
-            ...ui.card,
-            padding: '12px 16px',
-            marginBottom: '20px',
-            fontSize: '0.85rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '12px',
-            color: notice.type === 'error' ? '#f87171' : '#34d399',
-            borderColor: notice.type === 'error' ? 'rgba(244, 63, 94, 0.3)' : 'rgba(16, 185, 129, 0.3)'
-          }}
-        >
-          <span>{notice.message}</span>
-          <button style={{ ...ui.btn, padding: '2px 8px' }} onClick={() => setNotice({ type: '', message: '' })} aria-label="Dismiss">✕</button>
-        </div>
-      )}
-
-      {/* Lead email recipients */}
-      <form onSubmit={saveRecipients} style={{ ...ui.card, padding: '16px', marginBottom: '20px' }}>
-        <label htmlFor="lead-recipients" style={{ display: 'block', fontWeight: 600, fontSize: '0.9rem', marginBottom: '4px' }}>
-          Send new leads to
-        </label>
-        <p style={{ ...ui.muted, margin: '0 0 10px' }}>
-          Every contact-form submission is emailed to these addresses. Separate multiple addresses with commas (up to 10).
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          <input
-            id="lead-recipients"
-            type="text"
-            inputMode="email"
-            value={recipientsDraft}
-            onChange={(e) => setRecipientsDraft(e.target.value)}
-            placeholder="contact@sushitaventures.com"
-            disabled={!recipients}
-            style={{ ...ui.input, flex: '1 1 320px' }}
-          />
-          <button
-            type="submit"
-            disabled={!recipients || savingRecipients || recipientsDraft.trim() === recipients.recipients.join(', ')}
-            style={{ ...ui.btn, background: '#00d2ff', borderColor: '#00d2ff', color: '#090a0f', fontWeight: 600 }}
-          >
-            {savingRecipients ? 'Saving…' : 'Save'}
+      <div className="adm-tabs" role="tablist" aria-label="Filter by progress">
+        <button role="tab" className="adm-tab" aria-selected={tab === ''} onClick={() => { setTab(''); setPage(1); }}>
+          All<span>{total}</span>
+        </button>
+        {STATUSES.map((s) => (
+          <button key={s.value} role="tab" className="adm-tab" aria-selected={tab === s.value} onClick={() => { setTab(s.value); setPage(1); }}>
+            {s.label}<span>{summary.byStatus[s.value] || 0}</span>
           </button>
-        </div>
-        {recipients && (
-          <p style={{ ...ui.muted, margin: '8px 0 0' }}>
-            {recipients.isDefault
-              ? 'Using the default inbox.'
-              : `Last changed ${fmtDate(recipients.updatedAt)}${recipients.updatedBy ? ` by ${recipients.updatedBy}` : ''}.`}
-          </p>
-        )}
-      </form>
-
-      {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        {cards.map((c) => (
-          <div key={c.label} style={{ ...ui.card, padding: '16px' }}>
-            <div style={ui.muted}>{c.label}</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: c.color || '#f0f2f8', marginTop: '4px' }}>{c.value}</div>
-          </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
+      <div className="adm-toolbar">
         <input
           type="search"
-          placeholder="Search name, email, phone, city…"
+          className="adm-input"
+          placeholder="Search by name, email, phone or city"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          style={{ ...ui.input, flex: '1 1 260px' }}
-          aria-label="Search leads"
+          aria-label="Search enquiries"
         />
-        <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} style={ui.input} aria-label="Filter by lead status">
-          <option value="">All lead statuses</option>
-          {LEAD_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
-        <select value={mailStatus} onChange={(e) => { setMailStatus(e.target.value); setPage(1); }} style={ui.input} aria-label="Filter by mail status">
-          <option value="">All mail statuses</option>
-          {Object.entries(MAIL_STATUS).map(([v, m]) => <option key={v} value={v}>{m.label}</option>)}
-        </select>
-        <button style={ui.btn} onClick={load}>↻ Refresh</button>
-      </div>
-
-      {/* List */}
-      <div style={{ ...ui.card, overflow: 'hidden' }}>
-        {loading && <p style={{ ...ui.muted, padding: '24px' }}>Loading leads…</p>}
-        {!loading && enquiries.length === 0 && (
-          <p style={{ ...ui.muted, padding: '24px' }}>No enquiries match these filters yet.</p>
+        {failed > 0 && (
+          <button
+            type="button"
+            className={`adm-btn${failedOnly ? ' adm-btn-primary' : ''}`}
+            aria-pressed={failedOnly}
+            onClick={() => { setFailedOnly((v) => !v); setPage(1); }}
+          >
+            Email failed ({failed})
+          </button>
         )}
-
-        {!loading && enquiries.map((e) => {
-          const mail = MAIL_STATUS[e.mail?.status] || MAIL_STATUS.pending;
-          const isOpen = expanded === e._id;
-          return (
-            <div key={e._id} style={{ borderBottom: '1px solid #1e2230', padding: '16px 18px' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px 18px' }}>
-                <div style={{ flex: '1 1 220px', minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{e.fullName}</div>
-                  <div style={ui.muted}>{fmtDate(e.createdAt)} · {e.city}</div>
-                </div>
-                <div style={{ flex: '1 1 220px', minWidth: 0, fontSize: '0.82rem', lineHeight: 1.6 }}>
-                  <a href={`mailto:${e.email}`} style={{ color: '#00d2ff', textDecoration: 'none', wordBreak: 'break-all' }}>{e.email}</a>
-                  <br />
-                  <a href={`tel:${e.phoneNumber}`} style={{ color: '#cbd5e1', textDecoration: 'none' }}>{e.phoneNumber}</a>
-                </div>
-                <div style={{ flex: '0 1 170px', fontSize: '0.82rem', color: '#cbd5e1' }}>{e.lookingFor}</div>
-                <select
-                  value={e.status}
-                  disabled={busyId === e._id}
-                  onChange={(ev) => changeLeadStatus(e._id, ev.target.value)}
-                  style={{ ...ui.input, padding: '6px 10px' }}
-                  aria-label={`Lead status for ${e.fullName}`}
-                >
-                  {LEAD_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
-                <span title={e.mail?.error || ''}>
-                  <Badge variant={mail.variant}>{mail.label}</Badge>
-                </span>
-                <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-                  {e.mail?.status !== 'sent' && (
-                    <button style={ui.btn} disabled={busyId === e._id} onClick={() => resend(e._id)}>
-                      {busyId === e._id ? 'Sending…' : 'Resend email'}
-                    </button>
-                  )}
-                  <button style={ui.btn} onClick={() => setExpanded(isOpen ? null : e._id)} aria-expanded={isOpen}>
-                    {isOpen ? 'Hide' : 'Details'}
-                  </button>
-                </div>
-              </div>
-
-              {isOpen && (
-                <div style={{ marginTop: '14px', padding: '14px', background: '#090a0f', borderRadius: '8px', fontSize: '0.84rem', lineHeight: 1.6 }}>
-                  <div style={ui.muted}>Requirement</div>
-                  <p style={{ margin: '4px 0 14px', whiteSpace: 'pre-wrap', color: '#e2e8f0' }}>{e.requirement || '—'}</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-                    <div><div style={ui.muted}>Mail attempts</div>{e.mail?.attempts ?? 0}</div>
-                    <div><div style={ui.muted}>Last attempt</div>{fmtDate(e.mail?.lastAttemptAt)}</div>
-                    <div><div style={ui.muted}>Delivered</div>{fmtDate(e.mail?.sentAt)}</div>
-                    <div><div style={ui.muted}>Source</div>{e.source}</div>
-                  </div>
-                  {e.mail?.error && (
-                    <p style={{ margin: '12px 0 0', color: '#f87171' }}>Mail error: {e.mail.error}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
       </div>
 
-      {/* Pagination */}
+      <div className="adm-panel">
+        {loading && rows.length === 0 ? (
+          <>{[0, 1, 2].map((i) => <div key={i} className="adm-skeleton" />)}</>
+        ) : rows.length === 0 ? (
+          <div className="adm-empty">
+            <strong>{search || tab || failedOnly ? 'No matching enquiries' : 'No enquiries yet'}</strong>
+            {search || tab || failedOnly ? 'Try a different search or tab.' : 'Contact-form submissions will appear here.'}
+          </div>
+        ) : (
+          rows.map((r) => {
+            const isOpen = open === r._id;
+            const mail = MAIL[r.mail?.status] || MAIL.pending;
+            return (
+              <div key={r._id} className={`adm-row${r.status === 'new' ? ' is-new' : ''}`}>
+                <button type="button" className="adm-row-main" onClick={() => setOpen(isOpen ? null : r._id)} aria-expanded={isOpen}>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="adm-row-name">{r.fullName}</div>
+                    <div className="adm-row-meta">{timeAgo(r.createdAt)}</div>
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div>{r.lookingFor}</div>
+                    <div className="adm-row-meta">{r.city}</div>
+                  </div>
+                  <div>
+                    {r.mail?.status === 'failed' ? <Chip tone="red">Email failed</Chip> : <span className="adm-row-meta">{r.phoneNumber}</span>}
+                  </div>
+                  <Chip tone={STATUS_TONE[r.status]}>{statusLabel(r.status)}</Chip>
+                </button>
+
+                {isOpen && (
+                  <div className="adm-row-detail">
+                    <div>
+                      <dl>
+                        <dt>Phone</dt><dd><a href={`tel:${r.phoneNumber}`}>{r.phoneNumber}</a></dd>
+                        <dt>Email</dt><dd><a href={`mailto:${r.email}`}>{r.email}</a></dd>
+                        <dt>City</dt><dd>{r.city}</dd>
+                        <dt>Looking for</dt><dd>{r.lookingFor}</dd>
+                        <dt>Received</dt><dd>{fmtDate(r.createdAt)}</dd>
+                      </dl>
+                      <div style={{ marginTop: 16 }}>
+                        <span className="adm-label">Requirement</span>
+                        <p className="adm-requirement">{r.requirement || 'No details given.'}</p>
+                      </div>
+                    </div>
+
+                    <div className="adm-row-actions">
+                      <div className="adm-field">
+                        <label className="adm-label" htmlFor={`st-${r._id}`}>Progress</label>
+                        <select
+                          id={`st-${r._id}`}
+                          className="adm-select"
+                          value={r.status}
+                          disabled={busyId === r._id}
+                          onChange={(e) => setStatus(r, e.target.value)}
+                        >
+                          {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        </select>
+                      </div>
+
+                      <div className="adm-field">
+                        <span className="adm-label">Team email</span>
+                        <div><Chip tone={mail.tone}>{mail.label}</Chip></div>
+                        {r.mail?.error && r.mail?.status !== 'sent' && <span className="adm-mail-error">{r.mail.error}</span>}
+                        {r.mail?.status !== 'sent' && (
+                          <button type="button" className="adm-btn adm-btn-sm" style={{ alignSelf: 'flex-start' }} disabled={busyId === r._id} onClick={() => resend(r)}>
+                            {busyId === r._id ? 'Sending…' : 'Send again'}
+                          </button>
+                        )}
+                      </div>
+
+                      <a className="adm-btn adm-btn-gold" href={`tel:${r.phoneNumber}`}>Call {r.fullName.split(' ')[0]}</a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
       {meta.pages > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
-          <span style={ui.muted}>{meta.total} leads · page {meta.page} of {meta.pages}</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={ui.btn} disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>← Previous</button>
-            <button style={ui.btn} disabled={page >= meta.pages} onClick={() => setPage((p) => p + 1)}>Next →</button>
+        <div className="adm-pager">
+          <span>Page {meta.page} of {meta.pages}</span>
+          <div>
+            <button className="adm-btn adm-btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Previous</button>
+            <button className="adm-btn adm-btn-sm" disabled={page >= meta.pages} onClick={() => setPage((p) => p + 1)}>Next</button>
           </div>
         </div>
       )}
+
+      {recipients && (
+        <div className="adm-recipients">
+          {editingRecipients ? (
+            <form onSubmit={saveRecipients}>
+              <input
+                className="adm-input"
+                value={recipientsDraft}
+                onChange={(e) => setRecipientsDraft(e.target.value)}
+                aria-label="Email new enquiries to (separate addresses with commas)"
+                placeholder="contact@sushitaventures.com"
+                autoFocus
+              />
+              <button type="submit" className="adm-btn adm-btn-primary">Save</button>
+              <button type="button" className="adm-btn" onClick={() => setEditingRecipients(false)}>Cancel</button>
+            </form>
+          ) : (
+            <>
+              <span>New enquiries are emailed to <strong>{recipients.recipients.join(', ')}</strong></span>
+              <button type="button" className="adm-link" onClick={() => { setRecipientsDraft(recipients.recipients.join(', ')); setEditingRecipients(true); }}>
+                Change
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {toastNode}
     </div>
   );
 };

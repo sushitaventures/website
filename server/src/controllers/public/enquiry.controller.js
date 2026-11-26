@@ -1,5 +1,6 @@
 import { Enquiry } from '../../models/Enquiry.js';
 import { sendSuccess, sendError } from '../../utils/response.js';
+import { env } from '../../config/env.js';
 import { sendEnquiryNotification, sendEnquiryThankYou } from '../../services/mail.service.js';
 
 const VALID_CATEGORIES = [
@@ -113,6 +114,14 @@ export const submitEnquiry = async (req, res) => {
         requirement: requirement ? requirement.trim() : '',
         ipAddress: typeof clientIp === 'string' ? clientIp.split(',')[0].trim() : '',
         userAgent: typeof userAgent === 'string' ? userAgent.slice(0, 300) : ''
+      });
+    } else if (env.isProduction) {
+      // Database unavailable: refuse rather than show "thank you" for a lead we can't keep
+      console.error('[PublicEnquiry] Database not connected — enquiry rejected with 503.');
+      return sendError(res, {
+        statusCode: 503,
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'We could not submit your enquiry right now. Please try again shortly or email contact@sushitaventures.com.'
       });
     } else {
       console.log('[DevEnquiryNotice] Database not connected in development; enquiry received and validated in memory:', {

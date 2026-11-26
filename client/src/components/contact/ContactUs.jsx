@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import {
   fadeInUp,
   fadeInScale,
@@ -38,6 +39,18 @@ export const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
   const [statusMessage, setStatusMessage] = useState("");
+
+  // Thank-you popup closes itself after 5 seconds (or on Esc / backdrop / ×)
+  useEffect(() => {
+    if (submitStatus !== "success") return;
+    const timer = setTimeout(() => setSubmitStatus(null), 5000);
+    const onKey = (e) => e.key === "Escape" && setSubmitStatus(null);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [submitStatus]);
 
   const validate = () => {
     const errs = {};
@@ -173,10 +186,51 @@ export const ContactUs = () => {
               Tell Us What You're Looking For.
             </h2>
 
-            {submitStatus === "success" && (
-              <div className="form-alert-box form-alert-success" role="alert">
-                {statusMessage}
-              </div>
+            {/* Success: popup that closes itself after 5 seconds. Portalled to <body> so the
+                animated (transformed) form containers can't trap its fixed positioning. */}
+            {createPortal(
+            <AnimatePresence>
+              {submitStatus === "success" && (
+                <motion.div
+                  className="thanks-popup-backdrop"
+                  onClick={() => setSubmitStatus(null)}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <motion.div
+                    className="thanks-popup"
+                    role="alertdialog"
+                    aria-modal="true"
+                    aria-labelledby="thanks-popup-title"
+                    aria-describedby="thanks-popup-msg"
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 12, scale: 0.98 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <button
+                      type="button"
+                      className="thanks-popup-close"
+                      onClick={() => setSubmitStatus(null)}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                    <div className="thanks-popup-icon" aria-hidden="true">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </div>
+                    <h3 id="thanks-popup-title" className="thanks-popup-title">Thank You</h3>
+                    <p id="thanks-popup-msg" className="thanks-popup-msg">{statusMessage}</p>
+                    <span className="thanks-popup-timer" aria-hidden="true" />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body,
             )}
 
             {submitStatus === "error" && (
