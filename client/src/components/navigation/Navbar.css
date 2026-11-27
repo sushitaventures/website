@@ -244,11 +244,6 @@
   flex: 0 0 auto;
 }
 
-.navbar-theme-box {
-  display: flex;
-  align-items: center;
-}
-
 /* Mobile Toggle Hamburger Button */
 .navbar-mobile-toggle-btn {
   display: inline-flex;
@@ -601,7 +596,7 @@
   padding: 2rem 2rem 3.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   box-sizing: border-box;
 }
 
@@ -755,37 +750,6 @@
   font-family: var(--font-family-sans, "Manrope", sans-serif);
   font-size: 0.95rem;
   font-weight: 500;
-}
-
-/* Mobile Drawer Bottom */
-.navbar-mobile-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.navbar-mobile-theme-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(23, 27, 25, 0.08);
-}
-
-[data-theme="dark"] .navbar-mobile-theme-row {
-  border-top-color: rgba(232, 225, 213, 0.1);
-}
-
-.mobile-theme-text {
-  font-family: var(--font-family-sans, "Manrope", sans-serif);
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(23, 27, 25, 0.7);
-}
-
-[data-theme="dark"] .mobile-theme-text {
-  color: rgba(232, 225, 213, 0.7);
 }
 
 /* Desktop (>= 961px) */

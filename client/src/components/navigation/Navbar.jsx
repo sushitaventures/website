@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ThemeToggle } from '../common/ThemeToggle.jsx';
 import './Navbar.css';
 import { MobileActionBar } from './MobileActionBar.jsx';
 
@@ -211,10 +210,6 @@ export const Navbar = () => {
 
         {/* 3. RIGHT — CONTACT ACTION */}
         <div className="navbar-right">
-          <div className="navbar-theme-box">
-            <ThemeToggle />
-          </div>
-
           {/* Minimal Mobile Menu Toggle Button */}
           <button
             type="button"
@@ -419,12 +414,6 @@ export const Navbar = () => {
             </li>
           </ul>
 
-          <div className="navbar-mobile-bottom">
-            <div className="navbar-mobile-theme-row">
-              <span className="mobile-theme-text">Appearance</span>
-              <ThemeToggle />
-            </div>
-          </div>
 
         </div>
       </div>
