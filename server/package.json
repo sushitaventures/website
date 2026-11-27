@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "build": "npm install --omit=dev",
+    "build": "esbuild src/server.js --bundle --platform=node --format=esm --target=node22 --outfile=dist/server.mjs --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\" --external:kerberos --external:@mongodb-js/zstd --external:snappy --external:socks --external:aws4 --external:mongodb-client-encryption --external:gcp-metadata --external:@aws-sdk/credential-providers",
     "admin:create": "node src/scripts/createAdmin.js",
     "admin:reset": "node src/scripts/createAdmin.js --reset",
     "test:section04": "node src/tests/section04.test.js"
@@ -18,6 +18,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "esbuild": "^0.25.0",
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.5",
     "helmet": "^8.0.0",
