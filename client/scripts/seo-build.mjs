@@ -53,6 +53,7 @@ const headFor = (seo) => {
     `<meta name="description" content="${esc(seo.description)}" />`,
     `<meta name="robots" content="index, follow, max-image-preview:large" />`,
     `<link rel="canonical" href="${esc(url)}" />`,
+    `<link rel="alternate" type="text/markdown" href="${seo.path === '/' ? '/index.md' : `${seo.path}.md`}" />`,
     `<meta property="og:title" content="${esc(seo.title)}" />`,
     `<meta property="og:description" content="${esc(seo.description)}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
@@ -117,6 +118,23 @@ const bodyFor = (seo) => {
   return `<noscript><main>${parts.join('\n')}</main></noscript>`;
 };
 
+// Markdown twin of each page, served for `Accept: text/markdown` (see public/.htaccess)
+const mdFor = (seo) => {
+  const out = [`# ${seo.h1}`, ...seo.summary];
+  if (seo.path === '/') out.push('## Our services', SERVICES.map((s) => `- [${s.title}](${abs(`/services/${s.slug}`)}): ${s.tagline}`).join('\n'));
+  if (seo.service) {
+    const s = seo.service;
+    out.push(
+      '## Target asset classes', s.targetAssets.map((a) => `- ${a.name ?? a}`).join('\n'),
+      '## How we support your requirements', ...s.pillars.map((p) => `### ${p.title}\n\n${p.desc}`),
+      '## Our process', s.advisoryProcess.map((p, i) => `${i + 1}. **${p.title}** — ${p.desc}`).join('\n')
+    );
+  }
+  if (seo.faqs) out.push('## Frequently asked questions', ...seo.faqs.map(({ q, a }) => `### ${q}\n\n${a}`));
+  out.push(`---\n\n${SITE.legalName}, ${ADDRESS}. Email: ${SITE.email}${SITE.telephone ? `. Phone: ${SITE.telephone}` : ''}. Canonical: ${abs(seo.path)}`);
+  return out.join('\n\n') + '\n';
+};
+
 const written = [];
 for (const route of PUBLIC_ROUTES) {
   const seo = getRouteSeo(route, SITE_URL);
@@ -129,6 +147,7 @@ for (const route of PUBLIC_ROUTES) {
   // Also /about.html: hosts resolve "/about" either to about/index.html or about.html
   // (Vite preview, Vercel clean URLs). Same canonical, so search engines see one page.
   if (route !== '/') fs.writeFileSync(path.join(dist, `${route}.html`), html);
+  fs.writeFileSync(path.join(dist, route === '/' ? 'index.md' : `${route}.md`), mdFor(seo));
   written.push(route);
 }
 
@@ -151,6 +170,7 @@ fs.writeFileSync(
   path.join(dist, 'robots.txt'),
   `# Sushita Ventures
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /admin
 Disallow: /status

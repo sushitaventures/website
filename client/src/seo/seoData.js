@@ -11,6 +11,9 @@ export const SITE = {
   tagline: 'Where Trust Builds Wealth.',
   defaultUrl: 'https://sushitaventures.com',
   email: 'contact@sushitaventures.com',
+  // Fill these in: they feed the Organization JSON-LD (telephone, sameAs)
+  telephone: '', // e.g. '+91-98xxxxxxxx'
+  sameAs: [], // full profile URLs: LinkedIn company page, Instagram, Facebook, Google Business…
   logo: '/images/branding/logo.png',
   ogImage: '/images/home/hero-hotel-resorts.jpg',
   locale: 'en_IN',
@@ -78,6 +81,8 @@ export const organizationLd = (siteUrl) => ({
   logo: abs(siteUrl, SITE.logo),
   image: abs(siteUrl, SITE.ogImage),
   email: SITE.email,
+  ...(SITE.telephone && { telephone: SITE.telephone }),
+  ...(SITE.sameAs.length && { sameAs: SITE.sameAs }),
   address: { '@type': 'PostalAddress', ...SITE.address },
   areaServed: SITE.areaServed.map((name) => ({ '@type': 'Place', name })),
   founder: SITE.founders.map((name) => ({ '@type': 'Person', name })),

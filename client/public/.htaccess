@@ -1,11 +1,29 @@
-# Single-page app fallback (Apache / LiteSpeed hosting).
-# Real files and folders (assets, images, the pre-rendered pages) are served as-is;
-# any other URL gets index.html, where the app redirects unknown routes to the homepage.
+# Apache / LiteSpeed hosting.
+# Public pages are pre-rendered files (about/index.html, services/x/index.html, …),
+# so only the client-only routes (/admin, /status) need the SPA fallback.
+# Anything else that doesn't exist gets a real 404 status (body: the app, which sends users home).
+ErrorDocument 404 /index.html
+
+AddType text/markdown .md
+
+<IfModule mod_headers.c>
+  Header set Link "</llms.txt>; rel=\"describedby\"; type=\"text/plain\""
+  Header append Vary Accept
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Agents asking for Markdown get the build-generated .md twin of the page
+  RewriteCond %{HTTP_ACCEPT} text/markdown
+  RewriteRule ^$ /index.md [L]
+  RewriteCond %{HTTP_ACCEPT} text/markdown
+  RewriteCond %{DOCUMENT_ROOT}/$1.md -f
+  RewriteRule ^(.+?)/?$ /$1.md [L]
+
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+  RewriteRule ^(admin|status)(/.*)?$ /index.html [L]
 </IfModule>
