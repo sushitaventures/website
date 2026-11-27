@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build && node scripts/seo-build.mjs",
     "preview": "vite preview",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "images": "node scripts/image-assets.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

@@ -45,3 +45,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Generated images waiting to be imported (npm run images -- import)
+client/image-drop/

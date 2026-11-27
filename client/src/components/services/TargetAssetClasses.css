@@ -1,0 +1,98 @@
+/* Target Asset Classes — editorial gallery on every service page.
+   Phones/tablets: native swipe row (.m-swipe). Desktop: grid sized by item count. */
+
+.tac {
+  background: var(--sd-ivory, #E8E1D5);
+  color: var(--sd-ink, #171B19);
+  padding: 0 0 4.5rem;
+}
+
+.tac-head { margin-bottom: 2rem; max-width: 720px; }
+
+.tac-intro {
+  margin: 0;
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.7;
+  font-weight: 350;
+  opacity: 0.8;
+}
+
+.tac-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.tac-card { min-width: 0; }
+
+.tac-media {
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: rgba(23, 27, 25, 0.08); /* shows while the image loads */
+}
+
+.tac-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease;
+  filter: saturate(0.92);
+}
+
+.tac-text {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.85rem;
+  align-items: baseline;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(166, 140, 101, 0.45);
+}
+
+.tac-num {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--sd-gold, #A68C65);
+  font-variant-numeric: tabular-nums;
+}
+
+.tac-name {
+  margin: 0;
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.1rem, 1.2vw, 1.3rem);
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.tac-desc {
+  grid-column: 2;
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.75;
+}
+
+@media (hover: hover) {
+  .tac-card:hover .tac-media img { transform: scale(1.04); filter: saturate(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tac-media img { transition: none; }
+}
+
+/* Desktop: one row of cards that GSAP drifts right → left on scroll (see the component).
+   overflow-x: clip hides the off-screen cards without breaking position: sticky elsewhere. */
+@media (min-width: 901px) {
+  .tac { padding-bottom: clamp(6rem, 9vw, 8rem); overflow-x: clip; }
+  .tac-head { margin-bottom: 3rem; }
+  .tac-grid {
+    display: flex;
+    gap: 1.75rem;
+    width: max-content;
+    will-change: transform;
+  }
+  .tac-card { flex: 0 0 clamp(280px, 27vw, 400px); }
+}

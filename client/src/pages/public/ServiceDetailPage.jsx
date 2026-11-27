@@ -13,6 +13,7 @@ import '../../components/services/ServiceDetail.css';
 import { useSeo } from '../../seo/useSeo.js';
 import { FaqSection } from '../../components/common/FaqSection.jsx';
 import { serviceFaqs } from '../../seo/seoData.js';
+import { TargetAssetClasses } from '../../components/services/TargetAssetClasses.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,11 +30,6 @@ const Heading = ({ children, className = 'sd-h2' }) => (
     {children}
   </SplitText>
 );
-
-const lineDraw = {
-  hidden: { scaleX: 0 },
-  visible: { scaleX: 1, transition: { duration: 1.1, ease: LUXURY_EASE } }
-};
 
 const ServiceContent = ({ service, slug }) => {
   const rootRef = useRef(null);
@@ -123,38 +119,16 @@ const ServiceContent = ({ service, slug }) => {
         </div>
       </section>
 
-      {/* 2. Overview + target assets */}
+      {/* 2. Overview */}
       <section className="sd-section sd-light" aria-label="Advisory Scope">
         <div className="sd-wrap sd-overview">
           <Heading>Considered Strategy for Lasting Value.</Heading>
-          <div>
-            <Reveal as="p" className="sd-lead">{service.overview}</Reveal>
-            <h3 className="sd-h3">Target Asset Classes</h3>
-            <Reveal as="ul" className="sd-assets" variants={staggerContainer(0.1, 0.1)}>
-              {service.targetAssets.map((asset) => {
-                // Plain string, or { name, img } when the category has a photo
-                const { name, img } = typeof asset === 'string' ? { name: asset } : asset;
-                return (
-                  <motion.li key={name} variants={staggerItem} className={img ? 'has-img' : undefined}>
-                    <motion.span className="sd-line" variants={lineDraw} />
-                    {img && (
-                      <img
-                        src={img}
-                        alt=""
-                        className="sd-asset-img"
-                        loading="lazy"
-                        // Photo not uploaded yet: fall back to the text-only row
-                        onError={(e) => { e.currentTarget.parentElement.classList.remove('has-img'); e.currentTarget.remove(); }}
-                      />
-                    )}
-                    {name}
-                  </motion.li>
-                );
-              })}
-            </Reveal>
-          </div>
+          <Reveal as="p" className="sd-lead">{service.overview}</Reveal>
         </div>
       </section>
+
+      {/* 2b. Target asset classes — one image per class */}
+      <TargetAssetClasses assets={service.targetAssets} serviceTitle={service.title} />
 
       {/* 3. Pillars — pinned horizontal scroll on desktop, stacked on phones */}
       <section className="sd-pillars sd-dark" aria-label="Key Capabilities">
