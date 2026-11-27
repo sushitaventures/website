@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "build": "echo \"API has no build step\"",
+    "build": "npm install --omit=dev",
     "admin:create": "node src/scripts/createAdmin.js",
     "admin:reset": "node src/scripts/createAdmin.js --reset",
     "test:section04": "node src/tests/section04.test.js"
